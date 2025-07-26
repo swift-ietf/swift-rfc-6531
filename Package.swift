@@ -9,6 +9,9 @@ extension String {
 
 extension Target.Dependency {
     static var rfc6531: Self { .target(name: .rfc6531) }
+    static var rfc1123: Self { .product(name: "RFC_1123", package: "swift-rfc-1123") }
+    static var rfc5321: Self { .product(name: "RFC_5321", package: "swift-rfc-5321") }
+    static var rfc5322: Self { .product(name: "RFC_5322", package: "swift-rfc-5322") }
 }
 
 let package = Package(
@@ -21,14 +24,17 @@ let package = Package(
         .library(name: .rfc6531, targets: [.rfc6531]),
     ],
     dependencies: [
-        // Add RFC dependencies here as needed
-        // .package(url: "https://github.com/swift-web-standards/swift-rfc-1123.git", branch: "main"),
+        .package(url: "https://github.com/swift-web-standards/swift-rfc-1123.git", branch: "main"),
+        .package(url: "https://github.com/swift-web-standards/swift-rfc-5321.git", branch: "main"),
+        .package(url: "https://github.com/swift-web-standards/swift-rfc-5322.git", branch: "main"),
     ],
     targets: [
         .target(
             name: .rfc6531,
             dependencies: [
-                // Add target dependencies here
+                .rfc1123,
+                .rfc5321,
+                .rfc5322
             ]
         ),
         .testTarget(
