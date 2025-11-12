@@ -6,10 +6,10 @@
 //
 
 import Foundation
-import RegexBuilder
 import RFC_1123
 import RFC_5321
 import RFC_5322
+import RegexBuilder
 
 /// RFC 6531 compliant email address (SMTPUTF8)
 public struct EmailAddress: Hashable, Sendable {
@@ -125,7 +125,10 @@ extension RFC_6531.EmailAddress {
                 // Validate each atom between dots
                 let atoms = string.split(separator: ".", omittingEmptySubsequences: true)
                 for atom in atoms {
-                    guard (try? RFC_6531.EmailAddress.utf8AtomRegex.wholeMatch(in: String(atom))) != nil else {
+                    guard
+                        (try? RFC_6531.EmailAddress.utf8AtomRegex.wholeMatch(in: String(atom)))
+                            != nil
+                    else {
                         throw ValidationError.invalidUTF8Atom(String(atom))
                     }
                 }
@@ -142,9 +145,10 @@ extension RFC_6531.EmailAddress {
             }
         }
 
+        // swiftlint:disable:next nesting
         private enum Storage: Hashable {
             case utf8DotAtom(String)  // UTF-8 unquoted format
-            case quoted(String)       // Quoted string format
+            case quoted(String)  // Quoted string format
         }
     }
 }
@@ -156,14 +160,17 @@ extension RFC_6531.EmailAddress {
     }
 
     // Address format regex with optional display name
-    nonisolated(unsafe) private static let addressRegex = /(?:((?:\"[^>]+\"|[^<]+)\s+))?<([^@]+)@([^>]+)>/
+    nonisolated(unsafe) private static let addressRegex =
+        /(?:((?:\"[^>]+\"|[^<]+)\s+))?<([^@]+)@([^>]+)>/
 
     // UTF-8 atom regex: allows Unicode letters and common symbols
-    nonisolated(unsafe) private static let utf8AtomRegex = /[\p{L}\p{N}!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+/
+    nonisolated(unsafe) private static let utf8AtomRegex =
+        /[\p{L}\p{N}!#$%&'\*\+\-\/=\?\^_`\{\|\}~]+/
 
     // Quoted string regex: allows any printable character except unescaped quotes
     // Also allows UTF-8 characters
-    nonisolated(unsafe) private static let quotedRegex = /(?:[^"\\\r\n]|\\["\\]|\p{L}|\p{N}|\p{P}|\p{S})+/
+    nonisolated(unsafe) private static let quotedRegex =
+        /(?:[^"\\\r\n]|\\["\\]|\p{L}|\p{N}|\p{P}|\p{S})+/
 }
 
 extension RFC_6531.EmailAddress {
@@ -172,11 +179,10 @@ extension RFC_6531.EmailAddress {
         if let name = displayName {
             // Quote the display name if it contains special characters or non-ASCII
             let needsQuoting = name.contains(where: {
-                !$0.isLetter && !$0.isNumber && !$0.isWhitespace ||
-                $0.asciiValue == nil
+                !$0.isLetter && !$0.isNumber && !$0.isWhitespace || $0.asciiValue == nil
             })
             let quotedName = needsQuoting ? "\"\(name)\"" : name
-            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>" // Exactly one space before angle bracket
+            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"  // Exactly one space before angle bracket
         }
         return "\(localPart.stringValue)@\(domain.name)"
     }
@@ -211,7 +217,8 @@ extension RFC_6531.EmailAddress {
             case .invalidQuotedString:
                 return "Invalid quoted string format in local-part"
             case .localPartTooLong(let bytes):
-                return "Local-part UTF-8 byte length \(bytes) exceeds maximum of \(Limits.maxUTF8Length)"
+                return
+                    "Local-part UTF-8 byte length \(bytes) exceeds maximum of \(Limits.maxUTF8Length)"
             case .consecutiveDots:
                 return "Local-part cannot contain consecutive dots"
             case .leadingOrTrailingDot:
