@@ -138,15 +138,12 @@ extension RFC_6531.EmailAddress {
         }
 
         /// The string representation
-        public var stringValue: String {
+        public var description: String {
             switch storage {
             case .utf8DotAtom(let string), .quoted(let string):
                 return string
             }
         }
-
-        /// Description for CustomStringConvertible
-        public var description: String { stringValue }
 
         // swiftlint:disable:next nesting
         private enum Storage: Hashable {
@@ -185,14 +182,14 @@ extension RFC_6531.EmailAddress {
                 !$0.isLetter && !$0.isNumber && !$0.isWhitespace || $0.asciiValue == nil
             })
             let quotedName = needsQuoting ? "\"\(name)\"" : name
-            return "\(quotedName) <\(localPart.stringValue)@\(domain.name)>"  // Exactly one space before angle bracket
+            return "\(quotedName) <\(localPart)@\(domain.name)>"  // Exactly one space before angle bracket
         }
-        return "\(localPart.stringValue)@\(domain.name)"
+        return "\(localPart)@\(domain.name)"
     }
 
     /// Just the email address part without display name
     public var addressValue: String {
-        "\(localPart.stringValue)@\(domain.name)"
+        "\(localPart)@\(domain.name)"
     }
 
     /// Returns true if this is an ASCII-only email address
@@ -272,7 +269,7 @@ extension RFC_5321.EmailAddress {
         }
         self = try RFC_5321.EmailAddress(
             displayName: emailAddress.displayName,
-            localPart: .init(emailAddress.localPart.stringValue),
+            localPart: .init(emailAddress.localPart.description),
             domain: emailAddress.domain
         )
     }
@@ -285,7 +282,7 @@ extension RFC_5322.EmailAddress {
         }
         self = try RFC_5322.EmailAddress(
             displayName: emailAddress.displayName,
-            localPart: .init(emailAddress.localPart.stringValue),
+            localPart: .init(emailAddress.localPart.description),
             domain: emailAddress.domain
         )
     }
