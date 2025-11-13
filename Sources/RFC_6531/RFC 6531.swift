@@ -288,16 +288,3 @@ extension RFC_5322.EmailAddress {
     }
 }
 
-extension RFC_6531.EmailAddress {
-    /// Convert to RFC 5321 format if possible (only for ASCII addresses)
-    public func toRFC5321() throws -> RFC_5321.EmailAddress {
-        try .init(self)
-    }
-}
-
-extension RFC_6531.EmailAddress {
-    /// Convert to RFC 5322 format if possible (only for ASCII addresses)
-    public func toRFC5322() throws -> RFC_5322.EmailAddress {
-        try .init(self)
-    }
-}
