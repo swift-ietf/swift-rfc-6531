@@ -1,16 +1,16 @@
-// swift-tools-version:6.0
+// swift-tools-version:6.2
 
 import PackageDescription
 
 extension String {
-    static let rfc6531: Self = "RFC_6531"
+    static let rfc6531: Self = "RFC 6531"
 }
 
 extension Target.Dependency {
     static var rfc6531: Self { .target(name: .rfc6531) }
-    static var rfc1123: Self { .product(name: "RFC_1123", package: "swift-rfc-1123") }
-    static var rfc5321: Self { .product(name: "RFC_5321", package: "swift-rfc-5321") }
-    static var rfc5322: Self { .product(name: "RFC_5322", package: "swift-rfc-5322") }
+    static var rfc1123: Self { .product(name: "RFC 1123", package: "swift-rfc-1123") }
+    static var rfc5321: Self { .product(name: "RFC 5321", package: "swift-rfc-5321") }
+    static var rfc5322: Self { .product(name: "RFC 5322", package: "swift-rfc-5322") }
 }
 
 let package = Package(
