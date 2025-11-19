@@ -5,7 +5,6 @@
 //  Verifies that README code examples actually work
 //
 
-import Foundation
 import RFC_6531
 import Testing
 
@@ -23,7 +22,7 @@ struct ReadmeVerificationTests {
     func parseWithInternationalizedDisplayName() throws {
         let named = try RFC_6531.EmailAddress("张三 <user@example.com>")
         #expect(named.displayName == "张三")
-        #expect(named.addressValue == "user@example.com")
+        #expect(named.address == "user@example.com")
     }
 
     @Test("README Line 63-69: Create from components")
@@ -49,14 +48,14 @@ struct ReadmeVerificationTests {
     func convertToRFC5321() throws {
         let asciiEmail = try RFC_6531.EmailAddress("user@example.com")
         let rfc5321 = try asciiEmail.toRFC5321()
-        #expect(rfc5321.addressValue == "user@example.com")
+        #expect(rfc5321.address == "user@example.com")
     }
 
     @Test("README Line 90-96: Convert to RFC 5322")
     func convertToRFC5322() throws {
         let asciiEmail = try RFC_6531.EmailAddress("user@example.com")
         let rfc5322 = try asciiEmail.toRFC5322()
-        #expect(rfc5322.addressValue == "user@example.com")
+        #expect(rfc5322.address == "user@example.com")
     }
 
     @Test("README Line 102-105: UTF-8 length validation")

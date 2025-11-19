@@ -58,7 +58,7 @@ print(email.domain.name) // "example.com"
 // Parse with internationalized display name
 let named = try RFC_6531.EmailAddress("张三 <user@example.com>")
 print(named.displayName) // "张三"
-print(named.addressValue) // "user@example.com"
+print(named.address) // "user@example.com"
 
 // Create from components
 let addr = try RFC_6531.EmailAddress(
@@ -82,7 +82,7 @@ print(utf8Email.isASCII) // false
 // Convert to RFC 5321 format (ASCII-only)
 do {
     let rfc5321 = try asciiEmail.toRFC5321()
-    print(rfc5321.addressValue) // "user@example.com"
+    print(rfc5321.address) // "user@example.com"
 } catch {
     print("Cannot convert: contains non-ASCII characters")
 }
@@ -90,7 +90,7 @@ do {
 // Convert to RFC 5322 format (ASCII-only)
 do {
     let rfc5322 = try asciiEmail.toRFC5322()
-    print(rfc5322.addressValue) // "user@example.com"
+    print(rfc5322.address) // "user@example.com"
 } catch {
     print("Cannot convert: contains non-ASCII characters")
 }
@@ -151,7 +151,7 @@ public struct EmailAddress: Hashable, Sendable {
     public init(_ string: String) throws
 
     public var stringValue: String      // Full format with display name
-    public var addressValue: String     // Just the email address part
+    public var address: String     // Just the email address part
     public var isASCII: Bool           // True if ASCII-only
 
     public func toRFC5321() throws -> RFC_5321.EmailAddress

@@ -173,23 +173,6 @@ extension RFC_6531.EmailAddress {
         /(?:[^"\\\r\n]|\\["\\]|\p{L}|\p{N}|\p{P}|\p{S})+/
 }
 
-extension String {
-    public init(
-        _ emailAddress: RFC_6531.EmailAddress
-    ) {
-        if let name = emailAddress.displayName {
-            // Quote the display name if it contains special characters or non-ASCII
-            let needsQuoting = name.contains(where: {
-                !$0.isASCIILetter && !$0.isASCIIDigit && !$0.isASCIIWhitespace || $0.asciiValue == nil
-            })
-            let quotedName = needsQuoting ? "\"\(name)\"" : name
-            self = "\(quotedName) <\(emailAddress.localPart)@\(emailAddress.domain.name)>"  // Exactly one space before angle bracket
-        } else {
-            self = "\(emailAddress.localPart)@\(emailAddress.domain.name)"
-        }
-    }
-}
-
 extension RFC_6531.EmailAddress {
     /// Just the email address part without display name
     public var address: String {
