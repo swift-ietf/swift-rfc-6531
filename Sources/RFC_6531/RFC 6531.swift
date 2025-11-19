@@ -5,7 +5,7 @@
 //  Created by Coen ten Thije Boonkkamp on 28/12/2024.
 //
 
-import Foundation
+import INCITS_4_1986
 import RFC_1123
 import RFC_5321
 import RFC_5322
@@ -24,7 +24,7 @@ public struct EmailAddress: Hashable, Sendable {
 
     /// Initialize with components
     public init(displayName: String? = nil, localPart: LocalPart, domain: RFC_1123.Domain) {
-        self.displayName = displayName?.trimmingCharacters(in: .whitespaces)
+        self.displayName = displayName?.trimming(.whitespaces)
         self.localPart = localPart
         self.domain = domain
     }
@@ -49,11 +49,11 @@ public struct EmailAddress: Hashable, Sendable {
 
             // Extract display name if present and normalize spaces
             let displayName = captures.1.map { name in
-                let trimmedName = name.trimmingCharacters(in: .whitespaces)
+                let trimmedName = name.trimming(.whitespaces)
                 if trimmedName.hasPrefix("\"") && trimmedName.hasSuffix("\"") {
                     let withoutQuotes = String(trimmedName.dropFirst().dropLast())
-                    return withoutQuotes.replacingOccurrences(of: #"\""#, with: "\"")
-                        .replacingOccurrences(of: #"\\"#, with: "\\")
+                    return withoutQuotes.replacing( #"\""#, with: "\"")
+                        .replacing( #"\\"#, with: "\\")
                 }
                 return trimmedName
             }
@@ -173,34 +173,38 @@ extension RFC_6531.EmailAddress {
         /(?:[^"\\\r\n]|\\["\\]|\p{L}|\p{N}|\p{P}|\p{S})+/
 }
 
-extension RFC_6531.EmailAddress {
-    /// The complete email address string, including display name if present
-    public var stringValue: String {
-        if let name = displayName {
+extension String {
+    public init(
+        _ emailAddress: RFC_6531.EmailAddress
+    ) {
+        if let name = emailAddress.displayName {
             // Quote the display name if it contains special characters or non-ASCII
             let needsQuoting = name.contains(where: {
-                !$0.isLetter && !$0.isNumber && !$0.isWhitespace || $0.asciiValue == nil
+                !$0.isASCIILetter && !$0.isASCIIDigit && !$0.isASCIIWhitespace || $0.asciiValue == nil
             })
             let quotedName = needsQuoting ? "\"\(name)\"" : name
-            return "\(quotedName) <\(localPart)@\(domain.name)>"  // Exactly one space before angle bracket
+            self = "\(quotedName) <\(emailAddress.localPart)@\(emailAddress.domain.name)>"  // Exactly one space before angle bracket
+        } else {
+            self = "\(emailAddress.localPart)@\(emailAddress.domain.name)"
         }
-        return "\(localPart)@\(domain.name)"
     }
+}
 
+extension RFC_6531.EmailAddress {
     /// Just the email address part without display name
-    public var addressValue: String {
+    public var address: String {
         "\(localPart)@\(domain.name)"
     }
 
     /// Returns true if this is an ASCII-only email address
     public var isASCII: Bool {
-        stringValue.utf8.allSatisfy { $0 < 128 }
+        String(self).utf8.allSatisfy { $0 < 128 }
     }
 }
 
 // MARK: - Errors
 extension RFC_6531.EmailAddress {
-    public enum ValidationError: Error, LocalizedError, Equatable {
+    public enum ValidationError: Error, Equatable {
         case missingAtSign
         case invalidUTF8Atom(_ atom: String)
         case invalidQuotedString
@@ -227,7 +231,7 @@ extension RFC_6531.EmailAddress {
         }
     }
 
-    public enum ConversionError: Error, LocalizedError, Equatable {
+    public enum ConversionError: Error, Equatable {
         case nonASCIICharacters
 
         public var errorDescription: String? {
@@ -241,7 +245,7 @@ extension RFC_6531.EmailAddress {
 
 // MARK: - Protocol Conformances
 extension RFC_6531.EmailAddress: CustomStringConvertible {
-    public var description: String { stringValue }
+    public var description: String { String(self) }
 }
 
 extension RFC_6531.EmailAddress: Codable {
@@ -258,7 +262,7 @@ extension RFC_6531.EmailAddress: Codable {
 }
 
 extension RFC_6531.EmailAddress: RawRepresentable {
-    public var rawValue: String { stringValue }
+    public var rawValue: String { String(self) }
     public init?(rawValue: String) { try? self.init(rawValue) }
 }
 
