@@ -6,6 +6,9 @@
 //
 
 import RFC_6531
+import RFC_1123
+import RFC_5321
+import RFC_5322
 import Testing
 
 @Suite
@@ -14,7 +17,7 @@ struct `README Verification` {
     @Test
     func `README Line 53-56: Parse internationalized email address`() throws {
         let email = try RFC_6531.EmailAddress("用户@example.com")
-        #expect(email.localPart.stringValue == "用户")
+        #expect(email.localPart.description == "用户")
         #expect(email.domain.name == "example.com")
     }
 
@@ -32,7 +35,7 @@ struct `README Verification` {
             localPart: .init("user"),
             domain: .init("example.com")
         )
-        #expect(addr.stringValue == "\"田中太郎\" <user@example.com>")
+        #expect(addr.description == "\"田中太郎\" <user@example.com>")
     }
 
     @Test
@@ -47,22 +50,22 @@ struct `README Verification` {
     @Test
     func `README Line 82-88: Convert to RFC 5321`() throws {
         let asciiEmail = try RFC_6531.EmailAddress("user@example.com")
-        let rfc5321 = try asciiEmail.toRFC5321()
-        #expect(rfc5321.address == "user@example.com")
+        let rfc5321 = try RFC_5321.EmailAddress(asciiEmail)
+        #expect(rfc5321.description == "user@example.com")
     }
 
     @Test
     func `README Line 90-96: Convert to RFC 5322`() throws {
         let asciiEmail = try RFC_6531.EmailAddress("user@example.com")
-        let rfc5322 = try asciiEmail.toRFC5322()
-        #expect(rfc5322.address == "user@example.com")
+        let rfc5322 = try RFC_5322.EmailAddress(asciiEmail)
+        #expect(rfc5322.description == "user@example.com")
     }
 
     @Test
     func `README Line 102-105: UTF-8 length validation`() throws {
         let chinese = "用户名"  // 9 bytes in UTF-8
         let email = try RFC_6531.EmailAddress("\(chinese)@example.com")
-        #expect(email.localPart.stringValue == chinese)
+        #expect(email.localPart.description == chinese)
     }
 
     @Test
@@ -79,9 +82,9 @@ struct `README Verification` {
         let valid2 = try RFC_6531.EmailAddress("用户@example.com")
         let valid3 = try RFC_6531.EmailAddress("user.name@example.com")
 
-        #expect(valid1.localPart.stringValue == "user")
-        #expect(valid2.localPart.stringValue == "用户")
-        #expect(valid3.localPart.stringValue == "user.name")
+        #expect(valid1.localPart.description == "user")
+        #expect(valid2.localPart.description == "用户")
+        #expect(valid3.localPart.description == "user.name")
     }
 
     @Test

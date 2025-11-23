@@ -6,9 +6,9 @@
 //
 
 import INCITS_4_1986
-import RFC_1123
-import RFC_5321
-import RFC_5322
+public import RFC_1123
+public import RFC_5321
+public import RFC_5322
 import RegexBuilder
 
 /// RFC 6531 compliant email address (SMTPUTF8)
@@ -23,14 +23,24 @@ public struct EmailAddress: Hashable, Sendable {
     public let domain: RFC_1123.Domain
 
     /// Initialize with components
+    public init<S: StringProtocol>(displayName: S?, localPart: LocalPart, domain: RFC_1123.Domain) {
+        self.displayName = displayName.map { String($0.trimming(.ascii.whitespaces)) }
+        self.localPart = localPart
+        self.domain = domain
+    }
+
+    /// Initialize with components
     public init(displayName: String? = nil, localPart: LocalPart, domain: RFC_1123.Domain) {
-        self.displayName = displayName?.trimming(.whitespaces)
+        self.displayName = displayName.map { String($0.trimming(.ascii.whitespaces)) }
         self.localPart = localPart
         self.domain = domain
     }
 
     /// Initialize from string representation ("Name <local@domain>" or "local@domain")
-    public init(_ string: String) throws {
+    public init(_ string: some StringProtocol) throws {
+        // Convert to String for regex matching
+        let stringValue = String(string)
+
         // Address format regex with optional display name and proper space handling
         let displayNameCapture = /((?:\"(?:[^\"\\]|\\.)*\"|[^<]+?))\s*/
 
@@ -44,12 +54,12 @@ public struct EmailAddress: Hashable, Sendable {
         }
 
         // Try matching the full address format first (with angle brackets)
-        if let match = try? fullRegex.wholeMatch(in: string) {
+        if let match = try? fullRegex.wholeMatch(in: stringValue) {
             let captures = match.output
 
             // Extract display name if present and normalize spaces
             let displayName = captures.1.map { name in
-                let trimmedName = name.trimming(.whitespaces)
+                let trimmedName = String(name.trimming(.ascii.whitespaces))
                 if trimmedName.hasPrefix("\"") && trimmedName.hasSuffix("\"") {
                     let withoutQuotes = String(trimmedName.dropFirst().dropLast())
                     return withoutQuotes.replacing( #"\""#, with: "\"")
@@ -68,12 +78,12 @@ public struct EmailAddress: Hashable, Sendable {
             )
         } else {
             // Try parsing as bare email address
-            guard let atIndex = string.firstIndex(of: "@") else {
+            guard let atIndex = stringValue.firstIndex(of: "@") else {
                 throw ValidationError.missingAtSign
             }
 
-            let localString = String(string[..<atIndex])
-            let domainString = String(string[string.index(after: atIndex)...])
+            let localString = String(stringValue[..<atIndex])
+            let domainString = String(stringValue[stringValue.index(after: atIndex)...])
 
             try self.init(
                 displayName: nil,
@@ -92,7 +102,7 @@ extension RFC_6531.EmailAddress {
         private let utf8Value: String
 
         /// Initialize with a string
-        public init(_ string: String) throws {
+        public init(_ string: some StringProtocol) throws {
             // Check overall length in UTF-8 bytes
             let utf8Bytes = string.utf8.count
             guard utf8Bytes <= Limits.maxUTF8Length else {
@@ -100,7 +110,7 @@ extension RFC_6531.EmailAddress {
             }
 
             // Store UTF-8 value for consistent comparisons
-            self.utf8Value = string
+            self.utf8Value = String(string)
 
             // Handle quoted string format
             if string.hasPrefix("\"") && string.hasSuffix("\"") {
@@ -108,7 +118,7 @@ extension RFC_6531.EmailAddress {
                 guard (try? RFC_6531.EmailAddress.quotedRegex.wholeMatch(in: quoted)) != nil else {
                     throw ValidationError.invalidQuotedString
                 }
-                self.storage = .quoted(string)
+                self.storage = .quoted(String(string))
             }
             // Handle UTF8-dot-atom format
             else {
@@ -133,7 +143,7 @@ extension RFC_6531.EmailAddress {
                     }
                 }
 
-                self.storage = .utf8DotAtom(string)
+                self.storage = .utf8DotAtom(String(string))
             }
         }
 
@@ -232,12 +242,12 @@ extension RFC_6531.EmailAddress: CustomStringConvertible {
 }
 
 extension RFC_6531.EmailAddress: Codable {
-    public func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.rawValue)
     }
 
-    public init(from decoder: Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawValue = try container.decode(String.self)
         try self.init(rawValue)
