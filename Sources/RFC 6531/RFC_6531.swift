@@ -79,7 +79,7 @@ public struct EmailAddress: Hashable, Sendable {
         } else {
             // Try parsing as bare email address
             guard let atIndex = stringValue.firstIndex(of: "@") else {
-                throw ValidationError.missingAtSign
+                throw Error.missingAtSign
             }
 
             let localString = String(stringValue[..<atIndex])
@@ -106,7 +106,7 @@ extension RFC_6531.EmailAddress {
             // Check overall length in UTF-8 bytes
             let utf8Bytes = string.utf8.count
             guard utf8Bytes <= Limits.maxUTF8Length else {
-                throw ValidationError.localPartTooLong(utf8Bytes)
+                throw Error.localPartTooLong(utf8Bytes)
             }
 
             // Store UTF-8 value for consistent comparisons
@@ -116,7 +116,7 @@ extension RFC_6531.EmailAddress {
             if string.hasPrefix("\"") && string.hasSuffix("\"") {
                 let quoted = String(string.dropFirst().dropLast())
                 guard (try? RFC_6531.EmailAddress.quotedRegex.wholeMatch(in: quoted)) != nil else {
-                    throw ValidationError.invalidQuotedString
+                    throw Error.invalidQuotedString
                 }
                 self.storage = .quoted(String(string))
             }
@@ -124,12 +124,12 @@ extension RFC_6531.EmailAddress {
             else {
                 // Check for consecutive dots
                 guard !string.contains("..") else {
-                    throw ValidationError.consecutiveDots
+                    throw Error.consecutiveDots
                 }
 
                 // Check for leading/trailing dots
                 guard !string.hasPrefix(".") && !string.hasSuffix(".") else {
-                    throw ValidationError.leadingOrTrailingDot
+                    throw Error.leadingOrTrailingDot
                 }
 
                 // Validate each atom between dots
@@ -139,7 +139,7 @@ extension RFC_6531.EmailAddress {
                         (try? RFC_6531.EmailAddress.utf8AtomRegex.wholeMatch(in: String(atom)))
                             != nil
                     else {
-                        throw ValidationError.invalidUTF8Atom(String(atom))
+                        throw Error.invalidUTF8Atom(String(atom))
                     }
                 }
 
@@ -197,7 +197,7 @@ extension RFC_6531.EmailAddress {
 
 // MARK: - Errors
 extension RFC_6531.EmailAddress {
-    public enum ValidationError: Error, Equatable {
+    public enum Error: Swift.Error, Equatable {
         case missingAtSign
         case invalidUTF8Atom(_ atom: String)
         case invalidQuotedString
@@ -224,7 +224,7 @@ extension RFC_6531.EmailAddress {
         }
     }
 
-    public enum ConversionError: Error, Equatable {
+    public enum ConversionError: Swift.Error, Equatable {
         case nonASCIICharacters
 
         public var errorDescription: String? {

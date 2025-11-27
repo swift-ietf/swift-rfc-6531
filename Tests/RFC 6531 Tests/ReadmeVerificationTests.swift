@@ -70,7 +70,7 @@ struct `README Verification` {
 
     @Test
     func `README Line 107-113: Local part too long`() throws {
-        #expect(throws: RFC_6531.EmailAddress.ValidationError.self) {
+        #expect(throws: RFC_6531.EmailAddress.Error.self) {
             let longLocal = String(repeating: "用", count: 22)  // 66 bytes
             _ = try RFC_6531.EmailAddress("\(longLocal)@example.com")
         }
@@ -89,14 +89,14 @@ struct `README Verification` {
 
     @Test
     func `README Line 125-128: Missing at sign`() throws {
-        #expect(throws: RFC_6531.EmailAddress.ValidationError.missingAtSign) {
+        #expect(throws: RFC_6531.EmailAddress.Error.missingAtSign) {
             _ = try RFC_6531.EmailAddress("no-at-sign")
         }
     }
 
     @Test
     func `README Line 131-134: Consecutive dots`() throws {
-        #expect(throws: RFC_6531.EmailAddress.ValidationError.consecutiveDots) {
+        #expect(throws: RFC_6531.EmailAddress.Error.consecutiveDots) {
             _ = try RFC_6531.EmailAddress("user..name@example.com")
         }
     }

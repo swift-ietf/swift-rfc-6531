@@ -108,7 +108,7 @@ let email = try RFC_6531.EmailAddress("\(chinese)@example.com")
 do {
     let longLocal = String(repeating: "用", count: 22) // 66 bytes
     let tooLong = try RFC_6531.EmailAddress("\(longLocal)@example.com")
-} catch RFC_6531.EmailAddress.ValidationError.localPartTooLong(let bytes) {
+} catch RFC_6531.EmailAddress.Error.localPartTooLong(let bytes) {
     print("Local part too long: \(bytes) bytes")
 }
 ```
@@ -124,13 +124,13 @@ let valid3 = try RFC_6531.EmailAddress("user.name@example.com")
 // Invalid addresses throw errors
 do {
     let invalid = try RFC_6531.EmailAddress("no-at-sign")
-} catch RFC_6531.EmailAddress.ValidationError.missingAtSign {
+} catch RFC_6531.EmailAddress.Error.missingAtSign {
     print("Missing @ symbol")
 }
 
 do {
     let dots = try RFC_6531.EmailAddress("user..name@example.com")
-} catch RFC_6531.EmailAddress.ValidationError.consecutiveDots {
+} catch RFC_6531.EmailAddress.Error.consecutiveDots {
     print("Cannot contain consecutive dots")
 }
 ```
@@ -179,7 +179,7 @@ Key features:
 ### Validation Errors
 
 ```swift
-public enum ValidationError: Error {
+public enum Error: Swift.Error {
     case missingAtSign
     case invalidUTF8Atom(String)
     case invalidQuotedString
