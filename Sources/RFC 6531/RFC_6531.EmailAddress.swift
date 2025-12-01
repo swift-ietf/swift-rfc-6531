@@ -66,7 +66,8 @@ extension RFC_6531 {
             if let name = displayName {
                 // Use trimming on utf8 view (zero-copy slice)
                 let trimmed = name.utf8.ascii.trimming(.ascii.whitespaces)
-                trimmedDisplayName = trimmed.isEmpty ? nil : String(decoding: trimmed, as: UTF8.self)
+                trimmedDisplayName =
+                    trimmed.isEmpty ? nil : String(decoding: trimmed, as: UTF8.self)
             } else {
                 trimmedDisplayName = nil
             }
@@ -112,7 +113,8 @@ extension RFC_6531.EmailAddress: UInt8.ASCII.Serializable {
         ascii value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == UInt8 {
-        let estimatedCapacity = (value.displayName?.utf8.count ?? 0)
+        let estimatedCapacity =
+            (value.displayName?.utf8.count ?? 0)
             + value.localPart.rawValue.utf8.count
             + value.domain.name.utf8.count + 10
         buffer.reserveCapacity(buffer.count + estimatedCapacity)
@@ -206,10 +208,10 @@ extension RFC_6531.EmailAddress: UInt8.ASCII.Serializable {
                 }
 
                 if let first = firstByte,
-                   let last = lastByte,
-                   first == UInt8.ascii.quotationMark,
-                   last == UInt8.ascii.quotationMark,
-                   byteCount >= 2 {
+                    let last = lastByte,
+                    first == UInt8.ascii.quotationMark,
+                    last == UInt8.ascii.quotationMark,
+                    byteCount >= 2 {
                     // Quoted display name - remove quotes and unescape
                     let unquotedBytes = displayNameBytes.dropFirst().dropLast()
                     displayName = Self.unescapeQuotedString(unquotedBytes)

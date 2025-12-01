@@ -5,10 +5,10 @@
 //  Verifies that README code examples actually work
 //
 
-import RFC_6531
 import RFC_1123
 import RFC_5321
 import RFC_5322
+import RFC_6531
 import Testing
 
 @Suite

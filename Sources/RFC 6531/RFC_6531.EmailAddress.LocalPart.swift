@@ -202,13 +202,13 @@ extension RFC_6531.EmailAddress.LocalPart {
             if byte == UInt8.ascii.reverseSolidus {
                 // Must be followed by " or \
                 guard let next: UInt8 = iterator.next(),
-                      next == UInt8.ascii.quotationMark || next == UInt8.ascii.reverseSolidus
+                    next == UInt8.ascii.quotationMark || next == UInt8.ascii.reverseSolidus
                 else {
                     return false
                 }
             } else if byte == UInt8.ascii.quotationMark
-                        || byte == UInt8.ascii.cr
-                        || byte == UInt8.ascii.lf {
+                || byte == UInt8.ascii.cr
+                || byte == UInt8.ascii.lf {
                 // Unescaped quote or CR/LF not allowed
                 return false
             }

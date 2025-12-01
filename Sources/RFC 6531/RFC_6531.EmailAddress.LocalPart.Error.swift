@@ -21,7 +21,8 @@ extension RFC_6531.EmailAddress.LocalPart.Error: CustomStringConvertible {
         case .empty:
             return "Local-part cannot be empty"
         case .tooLong(let length):
-            return "Local-part UTF-8 byte length \(length) exceeds maximum of \(RFC_6531.EmailAddress.LocalPart.Limits.maxUTF8Length)"
+            return
+                "Local-part UTF-8 byte length \(length) exceeds maximum of \(RFC_6531.EmailAddress.LocalPart.Limits.maxUTF8Length)"
         case .invalidUTF8Atom(let value):
             return "Invalid UTF-8 atom format: '\(value)'"
         case .invalidQuotedString(let value):
