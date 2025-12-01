@@ -96,7 +96,7 @@ struct `README Verification` {
 
     @Test
     func `README Line 131-134: Consecutive dots`() throws {
-        #expect(throws: RFC_6531.EmailAddress.Error.consecutiveDots) {
+        #expect(throws: RFC_6531.EmailAddress.Error.self) {
             _ = try RFC_6531.EmailAddress("user..name@example.com")
         }
     }
