@@ -208,8 +208,7 @@ extension RFC_6531.EmailAddress.LocalPart {
                 }
             } else if byte == UInt8.ascii.quotationMark
                 || byte == UInt8.ascii.cr
-                || byte == UInt8.ascii.lf
-            {
+                || byte == UInt8.ascii.lf {
                 // Unescaped quote or CR/LF not allowed
                 return false
             }

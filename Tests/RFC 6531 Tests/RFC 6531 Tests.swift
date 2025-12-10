@@ -436,8 +436,7 @@ struct EmailAddressValidTests {
             ("Владимир <user@example.com>", "Владимир", "user@example.com"),
         ]
     )
-    func validUTF8DisplayNames(email: String, expectedName: String, expectedAddress: String) throws
-    {
+    func validUTF8DisplayNames(email: String, expectedName: String, expectedAddress: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.displayName == expectedName)
         #expect(addr.address == expectedAddress)

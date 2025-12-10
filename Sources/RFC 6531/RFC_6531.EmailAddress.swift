@@ -211,8 +211,7 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
                     let last = lastByte,
                     first == UInt8.ascii.quotationMark,
                     last == UInt8.ascii.quotationMark,
-                    byteCount >= 2
-                {
+                    byteCount >= 2 {
                     // Quoted display name - remove quotes and unescape
                     let unquotedBytes = displayNameBytes.dropFirst().dropLast()
                     displayName = Self.unescapeQuotedString(unquotedBytes)
