@@ -52,9 +52,9 @@ extension RFC_6531.EmailAddress.LocalPart {
     }
 }
 
-// MARK: - UInt8.ASCII.Serializable
+// MARK: - Binary.ASCII.Serializable
 
-extension RFC_6531.EmailAddress.LocalPart: UInt8.ASCII.Serializable {
+extension RFC_6531.EmailAddress.LocalPart: Binary.ASCII.Serializable {
     public static func serialize<Buffer: RangeReplaceableCollection>(
         ascii value: Self,
         into buffer: inout Buffer
@@ -208,7 +208,8 @@ extension RFC_6531.EmailAddress.LocalPart {
                 }
             } else if byte == UInt8.ascii.quotationMark
                 || byte == UInt8.ascii.cr
-                || byte == UInt8.ascii.lf {
+                || byte == UInt8.ascii.lf
+            {
                 // Unescaped quote or CR/LF not allowed
                 return false
             }
@@ -220,7 +221,7 @@ extension RFC_6531.EmailAddress.LocalPart {
 
 // MARK: - Required Conformances
 
-extension RFC_6531.EmailAddress.LocalPart: UInt8.ASCII.RawRepresentable {}
+extension RFC_6531.EmailAddress.LocalPart: Binary.ASCII.RawRepresentable {}
 
 extension RFC_6531.EmailAddress.LocalPart: CustomStringConvertible {
     public var description: String { rawValue }

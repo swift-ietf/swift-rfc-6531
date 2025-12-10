@@ -99,9 +99,9 @@ extension RFC_6531.EmailAddress {
     public var rawValue: String { String(self) }
 }
 
-// MARK: - UInt8.ASCII.Serializable
+// MARK: - Binary.ASCII.Serializable
 
-extension RFC_6531.EmailAddress: UInt8.ASCII.Serializable {
+extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
     /// Serialize to byte buffer
     ///
     /// ## Category Theory
@@ -211,7 +211,8 @@ extension RFC_6531.EmailAddress: UInt8.ASCII.Serializable {
                     let last = lastByte,
                     first == UInt8.ascii.quotationMark,
                     last == UInt8.ascii.quotationMark,
-                    byteCount >= 2 {
+                    byteCount >= 2
+                {
                     // Quoted display name - remove quotes and unescape
                     let unquotedBytes = displayNameBytes.dropFirst().dropLast()
                     displayName = Self.unescapeQuotedString(unquotedBytes)
@@ -319,7 +320,7 @@ extension RFC_6531.EmailAddress: UInt8.ASCII.Serializable {
 
 // MARK: - Required Conformances
 
-extension RFC_6531.EmailAddress: UInt8.ASCII.RawRepresentable {}
+extension RFC_6531.EmailAddress: Binary.ASCII.RawRepresentable {}
 
 extension RFC_6531.EmailAddress: CustomStringConvertible {
     public var description: String { String(self) }
