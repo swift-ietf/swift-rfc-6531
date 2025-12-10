@@ -26,10 +26,10 @@ let package = Package(
         .library(name: .rfc6531, targets: [.rfc6531]),
     ],
     dependencies: [
-        .package(url: "https://github.com/swift-standards/swift-incits-4-1986", from: "0.6.0"),
-        .package(url: "https://github.com/swift-standards/swift-rfc-1123.git", from: "0.4.0"),
-        .package(url: "https://github.com/swift-standards/swift-rfc-5321.git", from: "0.3.0"),
-        .package(url: "https://github.com/swift-standards/swift-rfc-5322.git", from: "0.6.0"),
+        .package(url: "https://github.com/swift-standards/swift-incits-4-1986", from: "0.6.3"),
+        .package(url: "https://github.com/swift-standards/swift-rfc-1123.git", from: "0.5.1"),
+        .package(url: "https://github.com/swift-standards/swift-rfc-5321.git", from: "0.3.2"),
+        .package(url: "https://github.com/swift-standards/swift-rfc-5322.git", from: "0.7.0"),
     ],
     targets: [
         .target(
