@@ -27,9 +27,9 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../swift-incits-4-1986"),
-        .package(path: "../swift-rfc-1123.git"),
-        .package(path: "../swift-rfc-5321.git"),
-        .package(path: "../swift-rfc-5322.git"),
+        .package(path: "../swift-rfc-1123"),
+        .package(path: "../swift-rfc-5321"),
+        .package(path: "../swift-rfc-5322"),
     ],
     targets: [
         .target(
