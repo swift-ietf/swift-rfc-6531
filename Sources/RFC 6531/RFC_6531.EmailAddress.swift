@@ -3,7 +3,7 @@
 //
 // Internationalized email address per RFC 6531
 
-public import INCITS_4_1986
+public import ASCII
 public import RFC_1123
 public import RFC_5321
 public import RFC_5322
