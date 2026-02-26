@@ -40,7 +40,13 @@ let package = Package(
                 .rfc5321,
                 .rfc5322
             ]
-        )
+        ),
+        .testTarget(
+            name: "RFC 6531 Tests",
+            dependencies: [
+                "RFC 6531",
+            ]
+        ),
     ],
     swiftLanguageModes: [.v6]
 )
@@ -56,6 +62,7 @@ for target in package.targets where ![.system, .binary, .plugin, .macro].contain
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("InternalImportsByDefault"),
         .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
         .enableExperimentalFeature("Lifetimes"),
         .enableExperimentalFeature("SuppressedAssociatedTypes"),
         .enableExperimentalFeature("SuppressedAssociatedTypesWithDefaults"),
