@@ -349,11 +349,13 @@ extension RFC_5321.EmailAddress {
     /// Creates an RFC 5321 email address from an RFC 6531 address
     ///
     /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address contains non-ASCII
-    public init(_ emailAddress: RFC_6531.EmailAddress) throws {
+    public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError) {
         guard emailAddress.isASCII else {
             throw RFC_6531.EmailAddress.ConversionError.nonASCIICharacters
         }
-        self = try RFC_5321.EmailAddress(
+        // After verifying ASCII, RFC 5321 construction from the same valid components
+        // is guaranteed to succeed (same local-part rules, same domain, within length limits)
+        self = try! RFC_5321.EmailAddress(
             displayName: emailAddress.displayName,
             localPart: .init(emailAddress.localPart.rawValue),
             domain: emailAddress.domain
@@ -365,13 +367,15 @@ extension RFC_5322.EmailAddress {
     /// Creates an RFC 5322 email address from an RFC 6531 address
     ///
     /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address contains non-ASCII
-    public init(_ emailAddress: RFC_6531.EmailAddress) throws {
+    public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError) {
         guard emailAddress.isASCII else {
             throw RFC_6531.EmailAddress.ConversionError.nonASCIICharacters
         }
-        self = try RFC_5322.EmailAddress(
+        // After verifying ASCII, RFC 5322 construction from the same valid components
+        // is guaranteed to succeed (same local-part rules, same domain)
+        self = RFC_5322.EmailAddress(
             displayName: emailAddress.displayName,
-            localPart: .init(emailAddress.localPart.rawValue),
+            localPart: try! .init(emailAddress.localPart.rawValue),
             domain: emailAddress.domain
         )
     }
