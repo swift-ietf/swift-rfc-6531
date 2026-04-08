@@ -3,7 +3,8 @@
 //
 // Internationalized email local-part per RFC 6531
 
-public import ASCII
+public import ASCII_Serializer_Primitives
+public import INCITS_4_1986
 
 extension RFC_6531.EmailAddress {
     /// RFC 6531 compliant local-part supporting UTF-8 characters

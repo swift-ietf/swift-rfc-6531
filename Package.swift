@@ -7,7 +7,8 @@ extension String {
 }
 
 extension Target.Dependency {
-    static var incits41986: Self { .product(name: "ASCII", package: "swift-ascii") }
+    static var asciiSerializerPrimitives: Self { .product(name: "ASCII Serializer Primitives", package: "swift-ascii-serializer-primitives") }
+    static var incits41986: Self { .product(name: "INCITS 4 1986", package: "swift-incits-4-1986") }
     static var rfc6531: Self { .target(name: .rfc6531) }
     static var rfc1123: Self { .product(name: "RFC 1123", package: "swift-rfc-1123") }
     static var rfc5321: Self { .product(name: "RFC 5321", package: "swift-rfc-5321") }
@@ -26,7 +27,8 @@ let package = Package(
         .library(name: "RFC 6531", targets: ["RFC 6531"])
     ],
     dependencies: [
-        .package(path: "../../swift-foundations/swift-ascii"),
+        .package(path: "../../swift-primitives/swift-ascii-serializer-primitives"),
+        .package(path: "../../swift-incits/swift-incits-4-1986"),
         .package(path: "../swift-rfc-1123"),
         .package(path: "../swift-rfc-5321"),
         .package(path: "../swift-rfc-5322")
@@ -35,6 +37,7 @@ let package = Package(
         .target(
             name: "RFC 6531",
             dependencies: [
+                .asciiSerializerPrimitives,
                 .incits41986,
                 .rfc1123,
                 .rfc5321,
