@@ -186,16 +186,16 @@ struct LocalPartValidTests {
 
     // MARK: Length Boundary (64 UTF-8 bytes max)
 
-    @Test("Maximum length ASCII local part (64 bytes)")
-    func maxLengthASCII() throws {
+    @Test
+    func `Maximum length ASCII local part (64 bytes)`() throws {
         let localPart = String(repeating: "a", count: 64)
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
         #expect(lp.rawValue.utf8.count == 64)
     }
 
-    @Test("Maximum length UTF-8 local part (64 bytes with 3-byte chars)")
-    func maxLengthUTF8() throws {
+    @Test
+    func `Maximum length UTF-8 local part (64 bytes with 3-byte chars)`() throws {
         // 用 is 3 bytes in UTF-8, so 21 chars = 63 bytes + 1 ASCII = 64
         let localPart = String(repeating: "用", count: 21) + "a"
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
@@ -209,8 +209,8 @@ struct LocalPartValidTests {
 @Suite("RFC 6531 LocalPart - Invalid Cases")
 struct LocalPartInvalidTests {
 
-    @Test("Empty local part")
-    func empty() throws {
+    @Test
+    func `Empty local part`() throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.empty) {
             _ = try RFC_6531.EmailAddress.LocalPart("")
         }
@@ -218,16 +218,16 @@ struct LocalPartInvalidTests {
 
     // MARK: Length Violations
 
-    @Test("Local part too long (65 ASCII bytes)")
-    func tooLongASCII() throws {
+    @Test
+    func `Local part too long (65 ASCII bytes)`() throws {
         let localPart = String(repeating: "a", count: 65)
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.tooLong(65)) {
             _ = try RFC_6531.EmailAddress.LocalPart(localPart)
         }
     }
 
-    @Test("Local part too long (66 UTF-8 bytes)")
-    func tooLongUTF8() throws {
+    @Test
+    func `Local part too long (66 UTF-8 bytes)`() throws {
         // 用 is 3 bytes, 22 chars = 66 bytes
         let localPart = String(repeating: "用", count: 22)
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.tooLong(66)) {
@@ -237,15 +237,15 @@ struct LocalPartInvalidTests {
 
     // MARK: Dot Violations
 
-    @Test("Leading dot")
-    func leadingDot() throws {
+    @Test
+    func `Leading dot`() throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.self) {
             _ = try RFC_6531.EmailAddress.LocalPart(".user")
         }
     }
 
-    @Test("Trailing dot")
-    func trailingDot() throws {
+    @Test
+    func `Trailing dot`() throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.self) {
             _ = try RFC_6531.EmailAddress.LocalPart("user.")
         }
@@ -294,22 +294,22 @@ struct LocalPartInvalidTests {
 
     // MARK: Invalid Quoted Strings
 
-    @Test("Unclosed quoted string")
-    func unclosedQuote() throws {
+    @Test
+    func `Unclosed quoted string`() throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.self) {
             _ = try RFC_6531.EmailAddress.LocalPart("\"user")
         }
     }
 
-    @Test("Empty quoted string")
-    func emptyQuotedString() throws {
+    @Test
+    func `Empty quoted string`() throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.self) {
             _ = try RFC_6531.EmailAddress.LocalPart("\"\"")
         }
     }
 
-    @Test("Unescaped quote in quoted string")
-    func unescapedQuoteInQuotedString() throws {
+    @Test
+    func `Unescaped quote in quoted string`() throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.self) {
             _ = try RFC_6531.EmailAddress.LocalPart("\"user\"name\"")
         }
@@ -470,20 +470,20 @@ struct EmailAddressValidTests {
 
     // MARK: isASCII Property
 
-    @Test("isASCII is true for ASCII-only addresses")
-    func isASCIITrue() throws {
+    @Test
+    func `isASCII is true for ASCII-only addresses`() throws {
         let addr = try RFC_6531.EmailAddress("user@example.com")
         #expect(addr.isASCII == true)
     }
 
-    @Test("isASCII is false for UTF-8 local part")
-    func isASCIIFalseLocalPart() throws {
+    @Test
+    func `isASCII is false for UTF-8 local part`() throws {
         let addr = try RFC_6531.EmailAddress("用户@example.com")
         #expect(addr.isASCII == false)
     }
 
-    @Test("isASCII is false for UTF-8 display name")
-    func isASCIIFalseDisplayName() throws {
+    @Test
+    func `isASCII is false for UTF-8 display name`() throws {
         let addr = try RFC_6531.EmailAddress("张三 <user@example.com>")
         #expect(addr.isASCII == false)
     }
@@ -508,22 +508,22 @@ struct EmailAddressInvalidTests {
         }
     }
 
-    @Test("Empty email")
-    func emptyEmail() throws {
+    @Test
+    func `Empty email`() throws {
         #expect(throws: RFC_6531.EmailAddress.Error.missingAtSign) {
             _ = try RFC_6531.EmailAddress("")
         }
     }
 
-    @Test("Empty local part")
-    func emptyLocalPart() throws {
+    @Test
+    func `Empty local part`() throws {
         #expect(throws: RFC_6531.EmailAddress.Error.self) {
             _ = try RFC_6531.EmailAddress("@example.com")
         }
     }
 
-    @Test("Empty domain")
-    func emptyDomain() throws {
+    @Test
+    func `Empty domain`() throws {
         #expect(throws: RFC_6531.EmailAddress.Error.self) {
             _ = try RFC_6531.EmailAddress("user@")
         }
@@ -576,45 +576,45 @@ struct EmailAddressInvalidTests {
 @Suite("RFC 6531 EmailAddress - Conversions")
 struct EmailAddressConversionTests {
 
-    @Test("ASCII address converts to RFC 5321")
-    func convertToRFC5321ASCII() throws {
+    @Test
+    func `ASCII address converts to RFC 5321`() throws {
         let addr6531 = try RFC_6531.EmailAddress("user@example.com")
         let addr5321 = try RFC_5321.EmailAddress(addr6531)
         #expect(addr5321.address == "user@example.com")
     }
 
-    @Test("ASCII address with display name converts to RFC 5321")
-    func convertToRFC5321WithDisplayName() throws {
+    @Test
+    func `ASCII address with display name converts to RFC 5321`() throws {
         let addr6531 = try RFC_6531.EmailAddress("John Doe <user@example.com>")
         let addr5321 = try RFC_5321.EmailAddress(addr6531)
         #expect(addr5321.address == "user@example.com")
     }
 
-    @Test("UTF-8 address fails to convert to RFC 5321")
-    func convertToRFC5321UTF8Fails() throws {
+    @Test
+    func `UTF-8 address fails to convert to RFC 5321`() throws {
         let addr6531 = try RFC_6531.EmailAddress("用户@example.com")
         #expect(throws: RFC_6531.EmailAddress.ConversionError.nonASCIICharacters) {
             _ = try RFC_5321.EmailAddress(addr6531)
         }
     }
 
-    @Test("UTF-8 display name fails to convert to RFC 5321")
-    func convertToRFC5321UTF8DisplayNameFails() throws {
+    @Test
+    func `UTF-8 display name fails to convert to RFC 5321`() throws {
         let addr6531 = try RFC_6531.EmailAddress("张三 <user@example.com>")
         #expect(throws: RFC_6531.EmailAddress.ConversionError.nonASCIICharacters) {
             _ = try RFC_5321.EmailAddress(addr6531)
         }
     }
 
-    @Test("ASCII address converts to RFC 5322")
-    func convertToRFC5322ASCII() throws {
+    @Test
+    func `ASCII address converts to RFC 5322`() throws {
         let addr6531 = try RFC_6531.EmailAddress("user@example.com")
         let addr5322 = try RFC_5322.EmailAddress(addr6531)
         #expect(addr5322.address == "user@example.com")
     }
 
-    @Test("UTF-8 address fails to convert to RFC 5322")
-    func convertToRFC5322UTF8Fails() throws {
+    @Test
+    func `UTF-8 address fails to convert to RFC 5322`() throws {
         let addr6531 = try RFC_6531.EmailAddress("用户@example.com")
         #expect(throws: RFC_6531.EmailAddress.ConversionError.nonASCIICharacters) {
             _ = try RFC_5322.EmailAddress(addr6531)
@@ -680,24 +680,24 @@ struct EmailAddressRoundTripTests {
 @Suite("RFC 6531 EmailAddress - Codable")
 struct EmailAddressCodableTests {
 
-    @Test("Encode and decode ASCII address")
-    func codableASCII() throws {
+    @Test
+    func `Encode and decode ASCII address`() throws {
         let original = try RFC_6531.EmailAddress("user@example.com")
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(RFC_6531.EmailAddress.self, from: encoded)
         #expect(original == decoded)
     }
 
-    @Test("Encode and decode UTF-8 address")
-    func codableUTF8() throws {
+    @Test
+    func `Encode and decode UTF-8 address`() throws {
         let original = try RFC_6531.EmailAddress("用户@example.com")
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(RFC_6531.EmailAddress.self, from: encoded)
         #expect(original == decoded)
     }
 
-    @Test("Encode and decode with display name")
-    func codableWithDisplayName() throws {
+    @Test
+    func `Encode and decode with display name`() throws {
         let original = try RFC_6531.EmailAddress("张三 <user@example.com>")
         let encoded = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(RFC_6531.EmailAddress.self, from: encoded)
@@ -710,30 +710,30 @@ struct EmailAddressCodableTests {
 @Suite("RFC 6531 EmailAddress - Hashable & Equatable")
 struct EmailAddressHashableTests {
 
-    @Test("Equal addresses have equal hashes")
-    func equalHashCodes() throws {
+    @Test
+    func `Equal addresses have equal hashes`() throws {
         let addr1 = try RFC_6531.EmailAddress("user@example.com")
         let addr2 = try RFC_6531.EmailAddress("user@example.com")
         #expect(addr1 == addr2)
         #expect(addr1.hashValue == addr2.hashValue)
     }
 
-    @Test("Different addresses are not equal")
-    func notEqual() throws {
+    @Test
+    func `Different addresses are not equal`() throws {
         let addr1 = try RFC_6531.EmailAddress("user1@example.com")
         let addr2 = try RFC_6531.EmailAddress("user2@example.com")
         #expect(addr1 != addr2)
     }
 
-    @Test("Same address with different display names are not equal")
-    func displayNameAffectsEquality() throws {
+    @Test
+    func `Same address with different display names are not equal`() throws {
         let addr1 = try RFC_6531.EmailAddress("John <user@example.com>")
         let addr2 = try RFC_6531.EmailAddress("Jane <user@example.com>")
         #expect(addr1 != addr2)
     }
 
-    @Test("Can be used in Set")
-    func usableInSet() throws {
+    @Test
+    func `Can be used in Set`() throws {
         let addr1 = try RFC_6531.EmailAddress("user1@example.com")
         let addr2 = try RFC_6531.EmailAddress("user2@example.com")
         let addr3 = try RFC_6531.EmailAddress("user1@example.com")
@@ -748,32 +748,32 @@ struct EmailAddressHashableTests {
 @Suite("RFC 6531 EmailAddress - Component Access")
 struct EmailAddressComponentTests {
 
-    @Test("Access local part")
-    func accessLocalPart() throws {
+    @Test
+    func `Access local part`() throws {
         let addr = try RFC_6531.EmailAddress("user@example.com")
         #expect(addr.localPart.rawValue == "user")
     }
 
-    @Test("Access domain")
-    func accessDomain() throws {
+    @Test
+    func `Access domain`() throws {
         let addr = try RFC_6531.EmailAddress("user@example.com")
         #expect(addr.domain.name == "example.com")
     }
 
-    @Test("Access display name when present")
-    func accessDisplayNamePresent() throws {
+    @Test
+    func `Access display name when present`() throws {
         let addr = try RFC_6531.EmailAddress("John Doe <user@example.com>")
         #expect(addr.displayName == "John Doe")
     }
 
-    @Test("Display name is nil when absent")
-    func displayNameNilWhenAbsent() throws {
+    @Test
+    func `Display name is nil when absent`() throws {
         let addr = try RFC_6531.EmailAddress("user@example.com")
         #expect(addr.displayName == nil)
     }
 
-    @Test("Address property excludes display name")
-    func addressExcludesDisplayName() throws {
+    @Test
+    func `Address property excludes display name`() throws {
         let addr = try RFC_6531.EmailAddress("John Doe <user@example.com>")
         #expect(addr.address == "user@example.com")
     }
@@ -784,20 +784,20 @@ struct EmailAddressComponentTests {
 @Suite("RFC 6531 EmailAddress - Serialization")
 struct EmailAddressSerializationTests {
 
-    @Test("Serialize simple address")
-    func serializeSimple() throws {
+    @Test
+    func `Serialize simple address`() throws {
         let addr = try RFC_6531.EmailAddress("user@example.com")
         #expect(String(addr) == "user@example.com")
     }
 
-    @Test("Serialize with unquoted display name")
-    func serializeUnquotedDisplayName() throws {
+    @Test
+    func `Serialize with unquoted display name`() throws {
         let addr = try RFC_6531.EmailAddress("John Doe <user@example.com>")
         #expect(String(addr) == "John Doe <user@example.com>")
     }
 
-    @Test("Serialize with special characters quotes display name")
-    func serializeQuotedDisplayName() throws {
+    @Test
+    func `Serialize with special characters quotes display name`() throws {
         let addr = try RFC_6531.EmailAddress(
             displayName: "Doe, John",
             localPart: try .init("user"),
@@ -806,14 +806,14 @@ struct EmailAddressSerializationTests {
         #expect(String(addr) == "\"Doe, John\" <user@example.com>")
     }
 
-    @Test("Serialize UTF-8 address")
-    func serializeUTF8() throws {
+    @Test
+    func `Serialize UTF-8 address`() throws {
         let addr = try RFC_6531.EmailAddress("用户@example.com")
         #expect(String(addr) == "用户@example.com")
     }
 
-    @Test("Serialize UTF-8 display name quotes when has special chars")
-    func serializeUTF8DisplayNameQuoted() throws {
+    @Test
+    func `Serialize UTF-8 display name quotes when has special chars`() throws {
         let addr = try RFC_6531.EmailAddress(
             displayName: "张,三",
             localPart: try .init("user"),
@@ -829,64 +829,64 @@ struct EmailAddressSerializationTests {
 @Suite("RFC 6531 - Edge Cases")
 struct EdgeCaseTests {
 
-    @Test("Single character domain labels")
-    func singleCharDomainLabels() throws {
+    @Test
+    func `Single character domain labels`() throws {
         let addr = try RFC_6531.EmailAddress("user@a.b.c")
         #expect(addr.domain.name == "a.b.c")
     }
 
-    @Test("Numbers in domain")
-    func numbersInDomain() throws {
+    @Test
+    func `Numbers in domain`() throws {
         let addr = try RFC_6531.EmailAddress("user@123.example.com")
         #expect(addr.domain.name == "123.example.com")
     }
 
-    @Test("All allowed special characters in local part")
-    func allSpecialCharsInLocalPart() throws {
+    @Test
+    func `All allowed special characters in local part`() throws {
         // Per RFC 5321/6531, these are allowed in atoms: !#$%&'*+\-/=?^_`{|}~
         let addr = try RFC_6531.EmailAddress("a!#$%&'*+-/=?^_`{|}~b@example.com")
         #expect(addr.localPart.rawValue == "a!#$%&'*+-/=?^_`{|}~b")
     }
 
-    @Test("Whitespace trimmed from display name")
-    func whitespaceTrimmedFromDisplayName() throws {
+    @Test
+    func `Whitespace trimmed from display name`() throws {
         let addr = try RFC_6531.EmailAddress("  John Doe  <user@example.com>")
         #expect(addr.displayName == "John Doe")
     }
 
-    @Test("Empty display name becomes nil")
-    func emptyDisplayNameBecomesNil() throws {
+    @Test
+    func `Empty display name becomes nil`() throws {
         let addr = try RFC_6531.EmailAddress("   <user@example.com>")
         #expect(addr.displayName == nil)
     }
 
-    @Test("4-byte UTF-8 emoji in local part (allowed per RFC 6531)")
-    func emojiInLocalPart() throws {
+    @Test
+    func `4-byte UTF-8 emoji in local part (allowed per RFC 6531)`() throws {
         let addr = try RFC_6531.EmailAddress("user🙂@example.com")
         #expect(addr.localPart.rawValue == "user🙂")
     }
 
-    @Test("Emoji in quoted local part")
-    func emojiInQuotedLocalPart() throws {
+    @Test
+    func `Emoji in quoted local part`() throws {
         let addr = try RFC_6531.EmailAddress("\"user🙂\"@example.com")
         #expect(addr.localPart.rawValue == "\"user🙂\"")
     }
 
-    @Test("RawRepresentable conformance")
-    func rawRepresentable() throws {
+    @Test
+    func `RawRepresentable conformance`() throws {
         let addr = RFC_6531.EmailAddress(rawValue: "user@example.com")
         #expect(addr != nil)
         #expect(addr?.rawValue == "user@example.com")
     }
 
-    @Test("RawRepresentable returns nil for invalid")
-    func rawRepresentableInvalid() throws {
+    @Test
+    func `RawRepresentable returns nil for invalid`() throws {
         let addr = RFC_6531.EmailAddress(rawValue: "invalid")
         #expect(addr == nil)
     }
 
-    @Test("CustomStringConvertible")
-    func customStringConvertible() throws {
+    @Test
+    func `CustomStringConvertible`() throws {
         let addr = try RFC_6531.EmailAddress("user@example.com")
         #expect(addr.description == "user@example.com")
     }
@@ -944,8 +944,8 @@ struct UTF8ByteSequenceTests {
 @Suite("RFC 6531 EmailAddress - Constructors")
 struct EmailAddressConstructorTests {
 
-    @Test("Constructor from components without display name")
-    func constructorWithoutDisplayName() throws {
+    @Test
+    func `Constructor from components without display name`() throws {
         let localPart = try RFC_6531.EmailAddress.LocalPart("user")
         let domain = try RFC_1123.Domain("example.com")
         let addr = RFC_6531.EmailAddress(localPart: localPart, domain: domain)
@@ -956,8 +956,8 @@ struct EmailAddressConstructorTests {
         #expect(addr.address == "user@example.com")
     }
 
-    @Test("Constructor from components with display name")
-    func constructorWithDisplayName() throws {
+    @Test
+    func `Constructor from components with display name`() throws {
         let localPart = try RFC_6531.EmailAddress.LocalPart("user")
         let domain = try RFC_1123.Domain("example.com")
         let addr = RFC_6531.EmailAddress(
@@ -971,8 +971,8 @@ struct EmailAddressConstructorTests {
         #expect(addr.domain == domain)
     }
 
-    @Test("Constructor trims whitespace from display name")
-    func constructorTrimsDisplayName() throws {
+    @Test
+    func `Constructor trims whitespace from display name`() throws {
         let localPart = try RFC_6531.EmailAddress.LocalPart("user")
         let domain = try RFC_1123.Domain("example.com")
         let addr = RFC_6531.EmailAddress(
@@ -984,8 +984,8 @@ struct EmailAddressConstructorTests {
         #expect(addr.displayName == "John Doe")
     }
 
-    @Test("Constructor with empty display name becomes nil")
-    func constructorEmptyDisplayNameBecomesNil() throws {
+    @Test
+    func `Constructor with empty display name becomes nil`() throws {
         let localPart = try RFC_6531.EmailAddress.LocalPart("user")
         let domain = try RFC_1123.Domain("example.com")
         let addr = RFC_6531.EmailAddress(
