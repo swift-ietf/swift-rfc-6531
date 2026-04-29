@@ -1,0 +1,11 @@
+# .github/metadata.yaml
+# Triaged by AI-assisted bulk pass (2026-04-29).
+description: "Swift implementation of RFC 6531: SMTP Extension for Internationalized Email."
+topics:
+  - standards
+  - rfc
+  - rfc-6531
+  - email
+  - smtp
+  - internationalization
+homepage: "https://swift-institute.org"
