@@ -109,11 +109,11 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
     ///
     /// Serialization (natural transformation):
     /// - **Domain**: RFC_6531.EmailAddress (structured data)
-    /// - **Codomain**: [UInt8] (UTF-8 bytes)
+    /// - **Codomain**: [Byte] (UTF-8 bytes)
     public static func serialize<Buffer: RangeReplaceableCollection>(
         ascii value: Self,
         into buffer: inout Buffer
-    ) where Buffer.Element == UInt8 {
+    ) where Buffer.Element == Byte {
         let estimatedCapacity =
             (value.displayName?.utf8.count ?? 0)
             + value.localPart.rawValue.utf8.count
@@ -123,27 +123,28 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
         if let displayName = value.displayName {
             // Check if needs quoting (non-ASCII or special chars)
             let needsQuoting = displayName.utf8.contains(where: { byte in
-                !(byte.ascii.isLetter || byte.ascii.isDigit || byte.ascii.isWhitespace)
+                let code = ASCII.Code(byte)
+                return !(code.isLetter || code.isDigit || code.isWhitespace)
             })
 
             if needsQuoting {
-                buffer.append(UInt8.ascii.quotationMark)
+                buffer.append(ASCII.Code.quotationMark)
                 buffer.append(contentsOf: displayName.utf8)
-                buffer.append(UInt8.ascii.quotationMark)
+                buffer.append(ASCII.Code.quotationMark)
             } else {
                 buffer.append(contentsOf: displayName.utf8)
             }
 
-            buffer.append(UInt8.ascii.space)
-            buffer.append(UInt8.ascii.lessThanSign)
+            buffer.append(ASCII.Code.space)
+            buffer.append(ASCII.Code.lessThanSign)
         }
 
         buffer.append(contentsOf: value.localPart.rawValue.utf8)
-        buffer.append(UInt8.ascii.commercialAt)
+        buffer.append(ASCII.Code.commercialAt)
         buffer.append(contentsOf: value.domain.name.utf8)
 
         if value.displayName != nil {
-            buffer.append(UInt8.ascii.greaterThanSign)
+            buffer.append(ASCII.Code.greaterThanSign)
         }
     }
 
@@ -154,7 +155,7 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
     /// ## Category Theory
     ///
     /// Parsing transformation:
-    /// - **Domain**: [UInt8] (UTF-8 bytes)
+    /// - **Domain**: [Byte] (UTF-8 bytes)
     /// - **Codomain**: RFC_6531.EmailAddress (structured data)
     ///
     /// ## Performance
@@ -168,7 +169,7 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
     /// - `Display Name <local@domain>`
     /// - `"Quoted Name" <local@domain>`
     public init<Bytes: Collection>(ascii bytes: Bytes, in context: Void) throws(Error)
-    where Bytes.Element == UInt8 {
+    where Bytes.Element == Byte {
         guard !bytes.isEmpty else { throw Error.missingAtSign }
 
         // Find key positions at byte level (single pass)
@@ -177,12 +178,13 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
         var lastAtIndex: Bytes.Index?
 
         for index in bytes.indices {
-            switch bytes[index] {
-            case UInt8.ascii.lessThanSign:
+            let code = ASCII.Code(bytes[index])
+            switch code {
+            case ASCII.Code.lessThanSign:
                 lessThanIndex = index
-            case UInt8.ascii.greaterThanSign:
+            case ASCII.Code.greaterThanSign:
                 greaterThanIndex = index
-            case UInt8.ascii.commercialAt:
+            case ASCII.Code.commercialAt:
                 lastAtIndex = index
             default:
                 break
@@ -191,33 +193,36 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
 
         // Check for angle bracket format: Display Name <local@domain>
         if let lt = lessThanIndex, let gt = greaterThanIndex, lt < gt {
-            // Extract display name bytes (everything before <) - zero-copy slice
-            let displayNameBytes = bytes[..<lt].ascii.trimming(.ascii.whitespaces)
+            // Extract display name bytes (everything before <)
+            // Bridge to UInt8 for INCITS_4_1986 ascii.trimming (UInt8-substrate API).
+            let displayNameUInt8 = Array<UInt8>(bytes[..<lt])
+            let displayNameTrimmed = displayNameUInt8.ascii.trimming(.ascii.whitespaces)
 
             let displayName: String?
-            if displayNameBytes.isEmpty {
+            if displayNameTrimmed.isEmpty {
                 displayName = nil
             } else {
                 // Get first/last bytes by iteration (avoids Array allocation)
-                var firstByte: UInt8?
-                var lastByte: UInt8?
+                var firstCode: ASCII.Code?
+                var lastCode: ASCII.Code?
                 var byteCount = 0
-                for byte in displayNameBytes {
-                    if firstByte == nil { firstByte = byte }
-                    lastByte = byte
+                for byte in displayNameTrimmed {
+                    let code = ASCII.Code(byte)
+                    if firstCode == nil { firstCode = code }
+                    lastCode = code
                     byteCount += 1
                 }
 
-                if let first = firstByte,
-                    let last = lastByte,
-                    first == UInt8.ascii.quotationMark,
-                    last == UInt8.ascii.quotationMark,
+                if let first = firstCode,
+                    let last = lastCode,
+                    first == ASCII.Code.quotationMark,
+                    last == ASCII.Code.quotationMark,
                     byteCount >= 2 {
                     // Quoted display name - remove quotes and unescape
-                    let unquotedBytes = displayNameBytes.dropFirst().dropLast()
+                    let unquotedBytes = displayNameTrimmed.dropFirst().dropLast()
                     displayName = Self.unescapeQuotedString(unquotedBytes)
                 } else {
-                    displayName = String(decoding: displayNameBytes, as: UTF8.self)
+                    displayName = String(decoding: displayNameTrimmed, as: UTF8.self)
                 }
             }
 
@@ -227,7 +232,7 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
             // Find @ in email part
             var emailAtIndex: Bytes.Index?
             for index in emailBytes.indices {
-                if emailBytes[index] == UInt8.ascii.commercialAt {
+                if ASCII.Code(emailBytes[index]) == ASCII.Code.commercialAt {
                     emailAtIndex = index
                 }
             }
@@ -289,7 +294,7 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
     ) -> String where Bytes.Element == UInt8 {
         // Check if any escapes exist (avoid allocation if not needed)
         var hasEscapes = false
-        for byte in bytes where byte == UInt8.ascii.reverseSolidus {
+        for byte in bytes where ASCII.Code(byte) == ASCII.Code.reverseSolidus {
             hasEscapes = true
             break
         }
@@ -305,7 +310,7 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
 
         var iterator = bytes.makeIterator()
         while let byte: UInt8 = iterator.next() {
-            if byte == UInt8.ascii.reverseSolidus {
+            if ASCII.Code(byte) == ASCII.Code.reverseSolidus {
                 // Escape sequence - take next byte literally
                 if let next: UInt8 = iterator.next() {
                     result.append(next)
