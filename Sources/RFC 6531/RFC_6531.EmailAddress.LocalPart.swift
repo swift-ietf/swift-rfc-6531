@@ -184,8 +184,7 @@ extension RFC_6531.EmailAddress.LocalPart {
         for byte in bytes {
             let code = ASCII.Code(byte)
             // UTF8-non-ascii: any byte >= 0x80 is allowed (includes all multi-byte UTF-8)
-            // audit: underlying — range comparison against numeric threshold
-            if code.underlying >= 0x80 {
+            if !code.isASCII {
                 continue
             }
 
