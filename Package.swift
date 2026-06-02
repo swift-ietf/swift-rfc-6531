@@ -27,11 +27,11 @@ let package = Package(
         .library(name: "RFC 6531", targets: ["RFC 6531"])
     ],
     dependencies: [
-        .package(path: "../../swift-primitives/swift-ascii-serializer-primitives"),
-        .package(path: "../../swift-incits/swift-incits-4-1986"),
-        .package(path: "../swift-rfc-1123"),
-        .package(path: "../swift-rfc-5321"),
-        .package(path: "../swift-rfc-5322")
+        .package(url: "https://github.com/swift-primitives/swift-ascii-serializer-primitives.git", branch: "main"),
+        .package(url: "https://github.com/swift-incits/swift-incits-4-1986.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-1123.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-5321.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-5322.git", branch: "main")
     ],
     targets: [
         .target(
