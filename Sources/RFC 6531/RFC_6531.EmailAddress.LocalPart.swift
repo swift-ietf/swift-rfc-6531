@@ -92,12 +92,9 @@ extension RFC_6531.EmailAddress.LocalPart: Binary.ASCII.Serializable {
         var lastByte = firstByte
         for byte in bytes { lastByte = byte }
 
-        let firstCode = ASCII.Code(firstByte)
-        let lastCode = ASCII.Code(lastByte)
-
         // Handle quoted string format
-        if firstCode == ASCII.Code.quotationMark {
-            guard byteCount >= 2, lastCode == ASCII.Code.quotationMark else {
+        if firstByte == ASCII.Code.quotationMark.byte {
+            guard byteCount >= 2, lastByte == ASCII.Code.quotationMark.byte else {
                 throw Error.invalidQuotedString(String(decoding: bytes, as: UTF8.self))
             }
 
@@ -115,19 +112,19 @@ extension RFC_6531.EmailAddress.LocalPart: Binary.ASCII.Serializable {
         // Handle UTF8-dot-atom format
         else {
             // Check for leading dot
-            if firstCode == ASCII.Code.period {
+            if firstByte == ASCII.Code.period.byte {
                 throw Error.leadingOrTrailingDot(String(decoding: bytes, as: UTF8.self))
             }
 
             // Check for trailing dot
-            if lastCode == ASCII.Code.period {
+            if lastByte == ASCII.Code.period.byte {
                 throw Error.leadingOrTrailingDot(String(decoding: bytes, as: UTF8.self))
             }
 
             // Single pass: check for consecutive dots
             var prevWasDot = false
             for byte in bytes {
-                if ASCII.Code(byte) == ASCII.Code.period {
+                if byte == ASCII.Code.period.byte {
                     if prevWasDot {
                         throw Error.consecutiveDots(String(decoding: bytes, as: UTF8.self))
                     }
@@ -140,7 +137,7 @@ extension RFC_6531.EmailAddress.LocalPart: Binary.ASCII.Serializable {
             // Validate atoms at byte level - split on dots and validate each
             var atomStart = bytes.startIndex
             for index in bytes.indices {
-                if ASCII.Code(bytes[index]) == ASCII.Code.period {
+                if bytes[index] == ASCII.Code.period.byte {
                     // Validate atom from atomStart to index (zero-copy slice)
                     let atomBytes = bytes[atomStart..<index]
                     guard Self.isValidUTF8Atom(atomBytes) else {
@@ -182,11 +179,8 @@ extension RFC_6531.EmailAddress.LocalPart {
         guard !bytes.isEmpty else { return false }
 
         for byte in bytes {
-            let code = ASCII.Code(byte)
-            // UTF8-non-ascii: any byte >= 0x80 is allowed (includes all multi-byte UTF-8)
-            if !code.isASCII {
-                continue
-            }
+            // UTF8-non-ascii (byte >= 0x80) is allowed; the lift returns nil there.
+            guard let code = try? ASCII.Code(byte) else { continue }
 
             // ASCII bytes must be valid atext per RFC 5322
             guard RFC_5322.isAtext(code) else {
@@ -204,18 +198,16 @@ extension RFC_6531.EmailAddress.LocalPart {
 
         var iterator = bytes.makeIterator()
         while let byte = iterator.next() {
-            let code = ASCII.Code(byte)
-            if code == ASCII.Code.reverseSolidus {
+            if byte == ASCII.Code.reverseSolidus.byte {
                 // Must be followed by " or \
                 guard let next = iterator.next() else { return false }
-                let nextCode = ASCII.Code(next)
-                guard nextCode == ASCII.Code.quotationMark || nextCode == ASCII.Code.reverseSolidus
+                guard next == ASCII.Code.quotationMark.byte || next == ASCII.Code.reverseSolidus.byte
                 else {
                     return false
                 }
-            } else if code == ASCII.Code.quotationMark
-                || code == ASCII.Code.cr
-                || code == ASCII.Code.lf {
+            } else if byte == ASCII.Code.quotationMark.byte
+                || byte == ASCII.Code.cr.byte
+                || byte == ASCII.Code.lf.byte {
                 // Unescaped quote or CR/LF not allowed
                 return false
             }
