@@ -57,13 +57,27 @@ extension RFC_6531.EmailAddress.LocalPart {
 
 // MARK: - Serialization (replacement for the retired combined ASCII serializable protocol)
 
-extension RFC_6531.EmailAddress.LocalPart: Swift.RawRepresentable, Serializable, ASCII.Serializable, Binary.Serializable {
+extension RFC_6531.EmailAddress.LocalPart: Swift.RawRepresentable, ASCII.Serializable, Binary.Serializable {
     /// Creates a local-part by validating `rawValue`, or `nil` if it is not valid.
     ///
     /// Re-provides the `Swift.RawRepresentable` requirement (previously inherited
     /// from the retired combined ASCII serializable protocol).
     public init?(rawValue: String) {
         try? self.init(rawValue)
+    }
+
+    /// Serializes `value` as ASCII bytes into `buffer` (own `ASCII.Serializable` verb).
+    ///
+    /// Re-homes the conformer off the retired canonical `Serializable` tier
+    /// ([FAM-012] Phase D), replacing the transitional default. Projects the
+    /// rawValue's UTF-8 bytes verbatim into the `ASCII.Code` substrate — the
+    /// `UInt8` lift wraps each byte without validation, so non-ASCII bytes
+    /// (RFC 6531 permits them) are preserved.
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == ASCII.Code {
+        for byte in value.rawValue.utf8 { buffer.append(ASCII.Code(byte)) }
     }
 
     /// Serializes `value` as ASCII bytes into `buffer`.
