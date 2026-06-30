@@ -108,10 +108,10 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
     /// mailbox/address form. RFC 6531 permits UTF-8 in the local-part and display
     /// name; the existing byte body is re-expressed over the `ASCII.Code` substrate
     /// by direct same-format composition. Each UTF-8 byte is lifted losslessly via
-    /// `ASCII.Code(unchecked:)`, so non-ASCII bytes are preserved. The local-part
-    /// and domain are emitted as raw `String` UTF-8 projections (mirroring the byte
-    /// body, which does not route through the sub-part serializer verbs). Output is
-    /// identical to the Binary witness body (`serializeBytes`).
+    /// `ASCII.Code(unchecked:)`, so non-ASCII display-name bytes are preserved. The
+    /// local-part and domain compose their re-cut sub-part verbs directly
+    /// (`LocalPart.serialize` / `RFC_1123.Domain.serialize`), not raw property
+    /// projections. Output is identical to the Binary witness body (`serializeBytes`).
     public static func serialize<Buffer: RangeReplaceableCollection>(
         _ value: Self,
         into buffer: inout Buffer
@@ -142,9 +142,10 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
             buffer.append(ASCII.Code.lessThanSign)
         }
 
-        buffer.append(contentsOf: value.localPart.rawValue.utf8.map { ASCII.Code(unchecked: Byte($0)) })
+        // local-part@domain — direct same-format composition of the re-cut sub-part verbs
+        RFC_6531.EmailAddress.LocalPart.serialize(value.localPart, into: &buffer)
         buffer.append(ASCII.Code.commercialAt)
-        buffer.append(contentsOf: value.domain.name.utf8.map { ASCII.Code(unchecked: Byte($0)) })
+        RFC_1123.Domain.serialize(value.domain, into: &buffer)
 
         if value.displayName != nil {
             buffer.append(ASCII.Code.greaterThanSign)
@@ -191,9 +192,10 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
             buffer.append(ASCII.Code.lessThanSign)
         }
 
-        buffer.append(contentsOf: value.localPart.rawValue.utf8)
+        // local-part@domain — direct same-format composition of the re-cut sub-part verbs
+        RFC_6531.EmailAddress.LocalPart.serialize(value.localPart, into: &buffer)
         buffer.append(ASCII.Code.commercialAt)
-        buffer.append(contentsOf: value.domain.name.utf8)
+        RFC_1123.Domain.serialize(value.domain, into: &buffer)
 
         if value.displayName != nil {
             buffer.append(ASCII.Code.greaterThanSign)
