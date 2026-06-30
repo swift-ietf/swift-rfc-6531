@@ -4,6 +4,9 @@
 // Internationalized email address per RFC 6531
 
 public import ASCII_Serializer_Primitives
+public import Binary_Serializable_Primitives
+public import Parseable_ASCII_Primitives
+public import Serializer_Primitives
 public import INCITS_4_1986
 public import RFC_1123
 public import RFC_5321
@@ -96,21 +99,36 @@ extension RFC_6531.EmailAddress {
     }
 
     /// The raw string value
-    public var rawValue: String { String(self) }
+    public var rawValue: String { String(decoding: serialized, as: UTF8.self) }
 }
 
-// MARK: - Binary.ASCII.Serializable
+// MARK: - ASCII Serialization
 
-extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
-    /// Serialize to byte buffer
-    ///
-    /// ## Category Theory
-    ///
-    /// Serialization (natural transformation):
-    /// - **Domain**: RFC_6531.EmailAddress (structured data)
-    /// - **Codomain**: [Byte] (UTF-8 bytes)
+extension RFC_6531.EmailAddress: Serializable, ASCII.Serializable, Binary.Serializable {
+    /// Canonical ASCII serializer for the RFC 6531 (SMTPUTF8) mailbox/address form.
+    /// RFC 6531 permits UTF-8 in the local-part and display name; the byte-domain
+    /// body is projected losslessly into the `ASCII.Code` substrate (non-ASCII bytes
+    /// preserved via `ASCII.Code(unchecked:)` / `.byte`).
+    public static var serializer: Serializer_Primitives.Serializer.Pure<Self, [ASCII.Code]> {
+        Serializer_Primitives.Serializer.Pure { value, buffer in
+            var bytes: [Byte] = []
+            serializeBytes(value, into: &bytes)
+            buffer.append(contentsOf: bytes.map { ASCII.Code(unchecked: $0) })
+        }
+    }
+
+    /// Explicit `Binary.Serializable` witness disambiguating the two
+    /// constraint-incomparable defaults.
     public static func serialize<Buffer: RangeReplaceableCollection>(
-        ascii value: Self,
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == Byte {
+        serializeBytes(value, into: &buffer)
+    }
+
+    /// Byte-domain serialization body (RFC 6531 mailbox/address, UTF-8).
+    private static func serializeBytes<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == Byte {
         let estimatedCapacity =
@@ -147,6 +165,13 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
             buffer.append(ASCII.Code.greaterThanSign)
         }
     }
+}
+
+extension RFC_6531.EmailAddress: ASCII.Parseable {
+    /// Creates an email address by validating `string`'s UTF-8 bytes.
+    public init(_ string: some StringProtocol) throws(Error) {
+        try self.init(ascii: [Byte](string.utf8))
+    }
 
     /// Parse from UTF-8 bytes (CANONICAL PRIMITIVE)
     ///
@@ -168,7 +193,7 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
     /// - `local@domain`
     /// - `Display Name <local@domain>`
     /// - `"Quoted Name" <local@domain>`
-    public init<Bytes: Collection>(ascii bytes: Bytes, in context: Void) throws(Error)
+    public init<Bytes: Collection>(ascii bytes: Bytes) throws(Error)
     where Bytes.Element == Byte {
         guard !bytes.isEmpty else { throw Error.missingAtSign }
 
@@ -308,10 +333,10 @@ extension RFC_6531.EmailAddress: Binary.ASCII.Serializable {
 
 // MARK: - Required Conformances
 
-extension RFC_6531.EmailAddress: Binary.ASCII.RawRepresentable {}
-
 extension RFC_6531.EmailAddress: CustomStringConvertible {
-    public var description: String { String(self) }
+    public var description: String {
+        String(decoding: serialized, as: UTF8.self)
+    }
 }
 
 extension RFC_6531.EmailAddress: Hashable {

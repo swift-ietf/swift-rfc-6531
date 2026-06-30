@@ -8,6 +8,8 @@ extension String {
 
 extension Target.Dependency {
     static var asciiSerializerPrimitives: Self { .product(name: "ASCII Serializer Primitives", package: "swift-ascii-serializer-primitives") }
+    static var asciiParser: Self { .product(name: "Parseable ASCII Primitives", package: "swift-ascii-parser-primitives") }
+    static var binarySerializable: Self { .product(name: "Binary Serializable Primitives", package: "swift-binary-serializer-primitives") }
     static var incits41986: Self { .product(name: "INCITS 4 1986", package: "swift-incits-4-1986") }
     static var rfc6531: Self { .target(name: .rfc6531) }
     static var rfc1123: Self { .product(name: "RFC 1123", package: "swift-rfc-1123") }
@@ -28,6 +30,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swift-primitives/swift-ascii-serializer-primitives.git", branch: "main"),
+        .package(url: "https://github.com/swift-primitives/swift-ascii-parser-primitives.git", branch: "main"),
+        .package(url: "https://github.com/swift-primitives/swift-binary-serializer-primitives.git", branch: "main"),
         .package(url: "https://github.com/swift-incits/swift-incits-4-1986.git", branch: "main"),
         .package(url: "https://github.com/swift-ietf/swift-rfc-1123.git", branch: "main"),
         .package(url: "https://github.com/swift-ietf/swift-rfc-5321.git", branch: "main"),
@@ -38,6 +42,8 @@ let package = Package(
             name: "RFC 6531",
             dependencies: [
                 .asciiSerializerPrimitives,
+                .asciiParser,
+                .binarySerializable,
                 .incits41986,
                 .rfc1123,
                 .rfc5321,
