@@ -6,7 +6,6 @@
 public import ASCII_Serializer_Primitives
 public import Binary_Serializable_Primitives
 public import Parseable_ASCII_Primitives
-public import Serializer_Primitives
 public import INCITS_4_1986
 public import RFC_1123
 public import RFC_5321
@@ -104,16 +103,51 @@ extension RFC_6531.EmailAddress {
 
 // MARK: - ASCII Serialization
 
-extension RFC_6531.EmailAddress: Serializable, ASCII.Serializable, Binary.Serializable {
-    /// Canonical ASCII serializer for the RFC 6531 (SMTPUTF8) mailbox/address form.
-    /// RFC 6531 permits UTF-8 in the local-part and display name; the byte-domain
-    /// body is projected losslessly into the `ASCII.Code` substrate (non-ASCII bytes
-    /// preserved via `ASCII.Code(unchecked:)` / `.byte`).
-    public static var serializer: Serializer_Primitives.Serializer.Pure<Self, [ASCII.Code]> {
-        Serializer_Primitives.Serializer.Pure { value, buffer in
-            var bytes: [Byte] = []
-            serializeBytes(value, into: &bytes)
-            buffer.append(contentsOf: bytes.map { ASCII.Code(unchecked: $0) })
+extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
+    /// Own `ASCII.Serializable` verb ([FAM-012]) — the RFC 6531 (SMTPUTF8)
+    /// mailbox/address form. RFC 6531 permits UTF-8 in the local-part and display
+    /// name; the existing byte body is re-expressed over the `ASCII.Code` substrate
+    /// by direct same-format composition. Each UTF-8 byte is lifted losslessly via
+    /// `ASCII.Code(unchecked:)`, so non-ASCII bytes are preserved. The local-part
+    /// and domain are emitted as raw `String` UTF-8 projections (mirroring the byte
+    /// body, which does not route through the sub-part serializer verbs). Output is
+    /// identical to the Binary witness body (`serializeBytes`).
+    public static func serialize<Buffer: RangeReplaceableCollection>(
+        _ value: Self,
+        into buffer: inout Buffer
+    ) where Buffer.Element == ASCII.Code {
+        let estimatedCapacity =
+            (value.displayName?.utf8.count ?? 0)
+            + value.localPart.rawValue.utf8.count
+            + value.domain.name.utf8.count + 10
+        buffer.reserveCapacity(buffer.count + estimatedCapacity)
+
+        if let displayName = value.displayName {
+            // Check if needs quoting (non-ASCII or special chars)
+            let needsQuoting = displayName.utf8.contains(where: { byte in
+                // Non-ASCII or any non-alphanumeric/whitespace char forces quoting.
+                guard let code = try? ASCII.Code(Byte(byte)) else { return true }
+                return !(code.isLetter || code.isDigit || code.isWhitespace)
+            })
+
+            if needsQuoting {
+                buffer.append(ASCII.Code.quotationMark)
+                buffer.append(contentsOf: displayName.utf8.map { ASCII.Code(unchecked: Byte($0)) })
+                buffer.append(ASCII.Code.quotationMark)
+            } else {
+                buffer.append(contentsOf: displayName.utf8.map { ASCII.Code(unchecked: Byte($0)) })
+            }
+
+            buffer.append(ASCII.Code.space)
+            buffer.append(ASCII.Code.lessThanSign)
+        }
+
+        buffer.append(contentsOf: value.localPart.rawValue.utf8.map { ASCII.Code(unchecked: Byte($0)) })
+        buffer.append(ASCII.Code.commercialAt)
+        buffer.append(contentsOf: value.domain.name.utf8.map { ASCII.Code(unchecked: Byte($0)) })
+
+        if value.displayName != nil {
+            buffer.append(ASCII.Code.greaterThanSign)
         }
     }
 
