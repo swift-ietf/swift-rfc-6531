@@ -1,6 +1,6 @@
 # Swift RFC 6531
 
-[![CI](https://github.com/swift-standards/swift-rfc-6531/workflows/CI/badge.svg)](https://github.com/swift-standards/swift-rfc-6531/actions/workflows/ci.yml)
+[![CI](https://github.com/swift-ietf/swift-rfc-6531/workflows/CI/badge.svg)](https://github.com/swift-ietf/swift-rfc-6531/actions/workflows/ci.yml)
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 
 Swift implementation of RFC 6531: SMTP Extension for Internationalized Email (SMTPUTF8) - internationalized email address standard.
@@ -28,7 +28,7 @@ Add swift-rfc-6531 to your package dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-standards/swift-rfc-6531.git", from: "0.1.0")
+    .package(url: "https://github.com/swift-ietf/swift-rfc-6531.git", from: "0.3.5")
 ]
 ```
 
@@ -196,9 +196,9 @@ public enum ConversionError: Error {
 ## Related Packages
 
 ### Dependencies
-- [swift-rfc-1123](https://github.com/swift-standards/swift-rfc-1123) - Domain name validation
-- [swift-rfc-5321](https://github.com/swift-standards/swift-rfc-5321) - SMTP email address format (ASCII-only)
-- [swift-rfc-5322](https://github.com/swift-standards/swift-rfc-5322) - Internet Message Format (ASCII-only)
+- [swift-rfc-1123](https://github.com/swift-ietf/swift-rfc-1123) - Domain name validation
+- [swift-rfc-5321](https://github.com/swift-ietf/swift-rfc-5321) - SMTP email address format (ASCII-only)
+- [swift-rfc-5322](https://github.com/swift-ietf/swift-rfc-5322) - Internet Message Format (ASCII-only)
 
 ### Used By
 - Email clients supporting internationalized addresses
