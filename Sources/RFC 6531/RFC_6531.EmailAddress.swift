@@ -5,8 +5,8 @@
 
 public import ASCII_Serializer_Primitives
 public import Binary_Serializable_Primitives
-public import Parseable_ASCII_Primitives
 public import INCITS_4_1986
+public import Parseable_ASCII_Primitives
 public import RFC_1123
 public import RFC_5321
 public import RFC_5322
@@ -263,7 +263,8 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
                 displayName = nil
             } else if nameBytes.count >= 2,
                 nameBytes.first == ASCII.Code.quotationMark.byte,
-                nameBytes.last == ASCII.Code.quotationMark.byte {
+                nameBytes.last == ASCII.Code.quotationMark.byte
+            {
                 // Quoted display name - remove quotes and unescape
                 displayName = Self.unescapeQuotedString(nameBytes.dropFirst().dropLast())
             } else {
@@ -399,12 +400,14 @@ extension RFC_5321.EmailAddress {
     /// Creates an RFC 5321 email address from an RFC 6531 address
     ///
     /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address contains non-ASCII
-    public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError) {
+    public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError)
+    {
         guard emailAddress.isASCII else {
             throw RFC_6531.EmailAddress.ConversionError.nonASCIICharacters
         }
         // After verifying ASCII, RFC 5321 construction from the same valid components
         // is guaranteed to succeed (same local-part rules, same domain, within length limits)
+        // swiftlint:disable:next force_try
         self = try! RFC_5321.EmailAddress(
             displayName: emailAddress.displayName,
             localPart: .init(emailAddress.localPart.rawValue),
@@ -417,7 +420,8 @@ extension RFC_5322.EmailAddress {
     /// Creates an RFC 5322 email address from an RFC 6531 address
     ///
     /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address contains non-ASCII
-    public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError) {
+    public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError)
+    {
         guard emailAddress.isASCII else {
             throw RFC_6531.EmailAddress.ConversionError.nonASCIICharacters
         }
@@ -425,6 +429,7 @@ extension RFC_5322.EmailAddress {
         // is guaranteed to succeed (same local-part rules, same domain)
         self = RFC_5322.EmailAddress(
             displayName: emailAddress.displayName,
+            // swiftlint:disable:next force_try
             localPart: try! .init(emailAddress.localPart.rawValue),
             domain: emailAddress.domain
         )

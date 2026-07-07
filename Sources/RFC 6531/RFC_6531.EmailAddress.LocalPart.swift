@@ -5,8 +5,8 @@
 
 public import ASCII_Serializer_Primitives
 public import Binary_Serializable_Primitives
-public import Parseable_ASCII_Primitives
 public import INCITS_4_1986
+public import Parseable_ASCII_Primitives
 
 extension RFC_6531.EmailAddress {
     /// RFC 6531 compliant local-part supporting UTF-8 characters
@@ -57,7 +57,9 @@ extension RFC_6531.EmailAddress.LocalPart {
 
 // MARK: - Serialization (replacement for the retired combined ASCII serializable protocol)
 
-extension RFC_6531.EmailAddress.LocalPart: Swift.RawRepresentable, ASCII.Serializable, Binary.Serializable {
+extension RFC_6531.EmailAddress.LocalPart: Swift.RawRepresentable, ASCII.Serializable, Binary
+        .Serializable
+{
     /// Creates a local-part by validating `rawValue`, or `nil` if it is not valid.
     ///
     /// Re-provides the `Swift.RawRepresentable` requirement (previously inherited
@@ -242,13 +244,15 @@ extension RFC_6531.EmailAddress.LocalPart {
             if byte == ASCII.Code.reverseSolidus.byte {
                 // Must be followed by " or \
                 guard let next = iterator.next() else { return false }
-                guard next == ASCII.Code.quotationMark.byte || next == ASCII.Code.reverseSolidus.byte
+                guard
+                    next == ASCII.Code.quotationMark.byte || next == ASCII.Code.reverseSolidus.byte
                 else {
                     return false
                 }
             } else if byte == ASCII.Code.quotationMark.byte
                 || byte == ASCII.Code.cr.byte
-                || byte == ASCII.Code.lf.byte {
+                || byte == ASCII.Code.lf.byte
+            {
                 // Unescaped quote or CR/LF not allowed
                 return false
             }
