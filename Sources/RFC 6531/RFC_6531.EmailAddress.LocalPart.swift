@@ -36,23 +36,27 @@ extension RFC_6531.EmailAddress {
             self.storage = storage
             self.rawValue = rawValue
         }
+    }
+}
 
-        // MARK: - Storage
+// MARK: - Storage
 
-        private enum Storage: Hashable, Sendable, Codable {
-            case utf8DotAtom
-            case quoted
-        }
+extension RFC_6531.EmailAddress.LocalPart {
+    private enum Storage: Hashable, Sendable, Codable {
+        case utf8DotAtom
+        case quoted
     }
 }
 
 // MARK: - Limits
 
 extension RFC_6531.EmailAddress.LocalPart {
-    package enum Limits {
-        /// Maximum length in UTF-8 bytes per RFC 6531
-        static let maxUTF8Length = 64
-    }
+    package enum Limits {}
+}
+
+extension RFC_6531.EmailAddress.LocalPart.Limits {
+    /// Maximum length in UTF-8 bytes per RFC 6531
+    static let maxUTF8Length = 64
 }
 
 // MARK: - Serialization (replacement for the retired combined ASCII serializable protocol)
