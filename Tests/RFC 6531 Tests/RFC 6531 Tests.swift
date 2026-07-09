@@ -19,18 +19,16 @@ struct LocalPartValidTests {
     // MARK: ASCII Atoms
 
     @Test(
-        "Valid ASCII single character local parts",
         arguments: [
             "a", "A", "z", "Z", "0", "9",
         ]
     )
-    func validSingleChar(localPart: String) throws {
+    func `Valid ASCII single character local parts`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
 
     @Test(
-        "Valid ASCII atoms",
         arguments: [
             "user",
             "USER",
@@ -56,7 +54,7 @@ struct LocalPartValidTests {
             "user~tilde",
         ]
     )
-    func validASCIIAtoms(localPart: String) throws {
+    func `Valid ASCII atoms`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
@@ -64,7 +62,6 @@ struct LocalPartValidTests {
     // MARK: Dot-atoms
 
     @Test(
-        "Valid dot-atom local parts",
         arguments: [
             "user.name",
             "first.last",
@@ -74,7 +71,7 @@ struct LocalPartValidTests {
             "a.b.c.d.e.f",
         ]
     )
-    func validDotAtoms(localPart: String) throws {
+    func `Valid dot-atom local parts`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
@@ -82,7 +79,6 @@ struct LocalPartValidTests {
     // MARK: UTF-8 Local Parts (RFC 6531 extension)
 
     @Test(
-        "Valid UTF-8 single characters",
         arguments: [
             "用",  // Chinese (3-byte UTF-8)
             "ユ",  // Japanese Katakana (3-byte)
@@ -98,13 +94,12 @@ struct LocalPartValidTests {
             "🙂",  // Emoji (4-byte UTF-8) - allowed per RFC 6531 UTF8-non-ascii
         ]
     )
-    func validUTF8SingleChar(localPart: String) throws {
+    func `Valid UTF-8 single characters`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
 
     @Test(
-        "Valid UTF-8 words",
         arguments: [
             "用户",  // Chinese: "user"
             "用户名",  // Chinese: "username"
@@ -116,13 +111,12 @@ struct LocalPartValidTests {
             "مستخدم",  // Arabic: "user"
         ]
     )
-    func validUTF8Words(localPart: String) throws {
+    func `Valid UTF-8 words`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
 
     @Test(
-        "Valid UTF-8 dot-atoms",
         arguments: [
             "用户.名",
             "first.用户",
@@ -131,13 +125,12 @@ struct LocalPartValidTests {
             "имя.фамилия",
         ]
     )
-    func validUTF8DotAtoms(localPart: String) throws {
+    func `Valid UTF-8 dot-atoms`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
 
     @Test(
-        "Valid mixed ASCII and UTF-8",
         arguments: [
             "user用户",
             "用户user",
@@ -145,7 +138,7 @@ struct LocalPartValidTests {
             "田中taro",
         ]
     )
-    func validMixedASCIIUTF8(localPart: String) throws {
+    func `Valid mixed ASCII and UTF-8`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
@@ -153,7 +146,6 @@ struct LocalPartValidTests {
     // MARK: Quoted Strings
 
     @Test(
-        "Valid quoted strings",
         arguments: [
             "\"user\"",
             "\"user name\"",
@@ -166,20 +158,19 @@ struct LocalPartValidTests {
             "\"user\\\\backslash\"",
         ]
     )
-    func validQuotedStrings(localPart: String) throws {
+    func `Valid quoted strings`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
 
     @Test(
-        "Valid quoted UTF-8 strings",
         arguments: [
             "\"用户\"",
             "\"田中 太郎\"",
             "\"用户@域名\"",
         ]
     )
-    func validQuotedUTF8Strings(localPart: String) throws {
+    func `Valid quoted UTF-8 strings`(localPart: String) throws {
         let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
         #expect(lp.rawValue == localPart)
     }
@@ -252,7 +243,6 @@ struct LocalPartInvalidTests {
     }
 
     @Test(
-        "Consecutive dots",
         arguments: [
             "user..name",
             "a..b",
@@ -261,7 +251,7 @@ struct LocalPartInvalidTests {
             "用户..名",
         ]
     )
-    func consecutiveDots(localPart: String) throws {
+    func `Consecutive dots`(localPart: String) throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.self) {
             _ = try RFC_6531.EmailAddress.LocalPart(localPart)
         }
@@ -270,7 +260,6 @@ struct LocalPartInvalidTests {
     // MARK: Invalid Characters in Unquoted Atoms
 
     @Test(
-        "Invalid characters in unquoted atom",
         arguments: [
             "user name",  // space
             "user(paren",  // parenthesis
@@ -286,7 +275,7 @@ struct LocalPartInvalidTests {
             "user\\backslash",  // unescaped backslash
         ]
     )
-    func invalidCharsInAtom(localPart: String) throws {
+    func `Invalid characters in unquoted atom`(localPart: String) throws {
         #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.self) {
             _ = try RFC_6531.EmailAddress.LocalPart(localPart)
         }
@@ -324,7 +313,6 @@ struct EmailAddressValidTests {
     // MARK: Basic Formats
 
     @Test(
-        "Valid simple email addresses",
         arguments: [
             "user@example.com",
             "USER@EXAMPLE.COM",
@@ -337,14 +325,13 @@ struct EmailAddressValidTests {
             "user+tag@example.com",
         ]
     )
-    func validSimpleAddresses(email: String) throws {
+    func `Valid simple email addresses`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.displayName == nil)
         #expect(addr.rawValue == email)
     }
 
     @Test(
-        "Valid dot-atom local parts in addresses",
         arguments: [
             "user.name@example.com",
             "first.last@example.com",
@@ -352,7 +339,7 @@ struct EmailAddressValidTests {
             "first.middle.last@example.com",
         ]
     )
-    func validDotAtomAddresses(email: String) throws {
+    func `Valid dot-atom local parts in addresses`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.displayName == nil)
     }
@@ -360,7 +347,6 @@ struct EmailAddressValidTests {
     // MARK: UTF-8 Email Addresses (RFC 6531)
 
     @Test(
-        "Valid UTF-8 local parts",
         arguments: [
             "用户@example.com",
             "用户名@example.com",
@@ -371,21 +357,20 @@ struct EmailAddressValidTests {
             "مستخدم@example.com",
         ]
     )
-    func validUTF8LocalParts(email: String) throws {
+    func `Valid UTF-8 local parts`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.displayName == nil)
         #expect(addr.isASCII == false)
     }
 
     @Test(
-        "Valid UTF-8 dot-atom addresses",
         arguments: [
             "用户.名@example.com",
             "田中.太郎@example.com",
             "имя.фамилия@example.com",
         ]
     )
-    func validUTF8DotAtomAddresses(email: String) throws {
+    func `Valid UTF-8 dot-atom addresses`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.isASCII == false)
     }
@@ -393,14 +378,13 @@ struct EmailAddressValidTests {
     // MARK: Display Name Formats
 
     @Test(
-        "Valid display names (unquoted)",
         arguments: [
             ("John Doe <user@example.com>", "John Doe", "user@example.com"),
             ("Jane <jane@example.com>", "Jane", "jane@example.com"),
             ("A B C <abc@example.com>", "A B C", "abc@example.com"),
         ]
     )
-    func validUnquotedDisplayNames(
+    func `Valid display names (unquoted)`(
         email: String,
         expectedName: String,
         expectedAddress: String
@@ -411,13 +395,12 @@ struct EmailAddressValidTests {
     }
 
     @Test(
-        "Valid display names (quoted)",
         arguments: [
             ("\"John Doe\" <user@example.com>", "John Doe", "user@example.com"),
             ("\"Doe, John\" <user@example.com>", "Doe, John", "user@example.com"),
         ]
     )
-    func validQuotedDisplayNames(
+    func `Valid display names (quoted)`(
         email: String,
         expectedName: String,
         expectedAddress: String
@@ -428,7 +411,6 @@ struct EmailAddressValidTests {
     }
 
     @Test(
-        "Valid UTF-8 display names",
         arguments: [
             ("张三 <user@example.com>", "张三", "user@example.com"),
             ("田中太郎 <user@example.com>", "田中太郎", "user@example.com"),
@@ -436,7 +418,7 @@ struct EmailAddressValidTests {
             ("Владимир <user@example.com>", "Владимир", "user@example.com"),
         ]
     )
-    func validUTF8DisplayNames(email: String, expectedName: String, expectedAddress: String) throws
+    func `Valid UTF-8 display names`(email: String, expectedName: String, expectedAddress: String) throws
     {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.displayName == expectedName)
@@ -444,13 +426,12 @@ struct EmailAddressValidTests {
     }
 
     @Test(
-        "Valid angle bracket format without display name",
         arguments: [
             "<user@example.com>",
             "<用户@example.com>",
         ]
     )
-    func validAngleBracketNoDisplayName(email: String) throws {
+    func `Valid angle bracket format without display name`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.displayName == nil)
     }
@@ -458,14 +439,13 @@ struct EmailAddressValidTests {
     // MARK: Quoted Local Parts in Addresses
 
     @Test(
-        "Valid quoted local parts in addresses",
         arguments: [
             "\"user name\"@example.com",
             "\"user@domain\"@example.com",
             "\"..\"@example.com",
         ]
     )
-    func validQuotedLocalParts(email: String) throws {
+    func `Valid quoted local parts in addresses`(email: String) throws {
         _ = try RFC_6531.EmailAddress(email)
     }
 
@@ -496,14 +476,13 @@ struct EmailAddressValidTests {
 struct EmailAddressInvalidTests {
 
     @Test(
-        "Missing @ sign",
         arguments: [
             "userexample.com",
             "user",
             "用户example.com",
         ]
     )
-    func missingAtSign(email: String) throws {
+    func `Missing @ sign`(email: String) throws {
         #expect(throws: RFC_6531.EmailAddress.Error.missingAtSign) {
             _ = try RFC_6531.EmailAddress(email)
         }
@@ -531,41 +510,38 @@ struct EmailAddressInvalidTests {
     }
 
     @Test(
-        "Invalid local part errors propagate",
         arguments: [
             "user..name@example.com",
             ".user@example.com",
             "user.@example.com",
         ]
     )
-    func invalidLocalPartPropagates(email: String) throws {
+    func `Invalid local part errors propagate`(email: String) throws {
         #expect(throws: RFC_6531.EmailAddress.Error.self) {
             _ = try RFC_6531.EmailAddress(email)
         }
     }
 
     @Test(
-        "Invalid domain errors propagate",
         arguments: [
             "user@-example.com",
             "user@example-.com",
         ]
     )
-    func invalidDomainPropagates(email: String) throws {
+    func `Invalid domain errors propagate`(email: String) throws {
         #expect(throws: RFC_6531.EmailAddress.Error.self) {
             _ = try RFC_6531.EmailAddress(email)
         }
     }
 
     @Test(
-        "Malformed angle brackets",
         arguments: [
             "John Doe user@example.com>",
             "John Doe <user@example.com",
             "<>",
         ]
     )
-    func malformedAngleBrackets(email: String) throws {
+    func `Malformed angle brackets`(email: String) throws {
         #expect(throws: RFC_6531.EmailAddress.Error.self) {
             _ = try RFC_6531.EmailAddress(email)
         }
@@ -629,7 +605,6 @@ struct EmailAddressConversionTests {
 struct EmailAddressRoundTripTests {
 
     @Test(
-        "Round-trip ASCII addresses",
         arguments: [
             "user@example.com",
             "user.name@example.com",
@@ -637,7 +612,7 @@ struct EmailAddressRoundTripTests {
             "\"quoted\"@example.com",
         ]
     )
-    func roundTripASCII(email: String) throws {
+    func `Round-trip ASCII addresses`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         let serialized = addr.rawValue
         let reparsed = try RFC_6531.EmailAddress(serialized)
@@ -645,14 +620,13 @@ struct EmailAddressRoundTripTests {
     }
 
     @Test(
-        "Round-trip UTF-8 addresses",
         arguments: [
             "用户@example.com",
             "用户.名@example.com",
             "ユーザー@example.com",
         ]
     )
-    func roundTripUTF8(email: String) throws {
+    func `Round-trip UTF-8 addresses`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         let serialized = addr.rawValue
         let reparsed = try RFC_6531.EmailAddress(serialized)
@@ -660,13 +634,12 @@ struct EmailAddressRoundTripTests {
     }
 
     @Test(
-        "Round-trip with display names",
         arguments: [
             "John Doe <user@example.com>",
             "张三 <user@example.com>",
         ]
     )
-    func roundTripWithDisplayName(email: String) throws {
+    func `Round-trip with display names`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         let serialized = addr.rawValue
         let reparsed = try RFC_6531.EmailAddress(serialized)
@@ -899,20 +872,18 @@ struct EdgeCaseTests {
 struct UTF8ByteSequenceTests {
 
     @Test(
-        "2-byte UTF-8 sequences (Latin Extended, etc.)",
         arguments: [
             "café@example.com",  // é = C3 A9
             "naïve@example.com",  // ï = C3 AF
             "Ångström@example.com",  // Å = C3 85
         ]
     )
-    func twoByte(email: String) throws {
+    func `2-byte UTF-8 sequences (Latin Extended, etc.)`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.isASCII == false)
     }
 
     @Test(
-        "3-byte UTF-8 sequences (CJK, etc.)",
         arguments: [
             "日本語@example.com",  // Japanese
             "한국어@example.com",  // Korean
@@ -921,20 +892,19 @@ struct UTF8ByteSequenceTests {
             "العربية@example.com",  // Arabic
         ]
     )
-    func threeByte(email: String) throws {
+    func `3-byte UTF-8 sequences (CJK, etc.)`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.isASCII == false)
     }
 
     @Test(
-        "4-byte UTF-8 sequences (Emoji) - allowed per RFC 6531",
         arguments: [
             "🎉party@example.com",
             "test🔥@example.com",
             "emoji👍@example.com",
         ]
     )
-    func fourByte(email: String) throws {
+    func `4-byte UTF-8 sequences (Emoji) - allowed per RFC 6531`(email: String) throws {
         let addr = try RFC_6531.EmailAddress(email)
         #expect(addr.isASCII == false)
     }
