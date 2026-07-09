@@ -13,8 +13,10 @@ import Testing
 
 // MARK: - LocalPart Valid Cases
 
+extension RFC_6531.EmailAddress.LocalPart {
+
 @Suite("RFC 6531 LocalPart - Valid Cases")
-struct LocalPartValidTests {
+struct Test {
 
     // MARK: ASCII Atoms
 
@@ -195,10 +197,14 @@ struct LocalPartValidTests {
     }
 }
 
+}
+
 // MARK: - LocalPart Invalid Cases
 
+extension RFC_6531.EmailAddress.LocalPart.Test {
+
 @Suite("RFC 6531 LocalPart - Invalid Cases")
-struct LocalPartInvalidTests {
+struct Invalid {
 
     @Test
     func `Empty local part`() throws {
@@ -305,10 +311,14 @@ struct LocalPartInvalidTests {
     }
 }
 
+}
+
 // MARK: - EmailAddress Valid Cases
 
+extension RFC_6531.EmailAddress {
+
 @Suite("RFC 6531 EmailAddress - Valid Cases")
-struct EmailAddressValidTests {
+struct Test {
 
     // MARK: Basic Formats
 
@@ -470,10 +480,14 @@ struct EmailAddressValidTests {
     }
 }
 
+}
+
 // MARK: - EmailAddress Invalid Cases
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Invalid Cases")
-struct EmailAddressInvalidTests {
+struct Invalid {
 
     @Test(
         arguments: [
@@ -548,10 +562,14 @@ struct EmailAddressInvalidTests {
     }
 }
 
+}
+
 // MARK: - Conversion Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Conversions")
-struct EmailAddressConversionTests {
+struct Conversion {
 
     @Test
     func `ASCII address converts to RFC 5321`() throws {
@@ -599,10 +617,14 @@ struct EmailAddressConversionTests {
     }
 }
 
+}
+
 // MARK: - Round-Trip Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Round-Trip")
-struct EmailAddressRoundTripTests {
+struct RoundTrip {
 
     @Test(
         arguments: [
@@ -649,10 +671,14 @@ struct EmailAddressRoundTripTests {
     }
 }
 
+}
+
 // MARK: - Codable Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Codable")
-struct EmailAddressCodableTests {
+struct Codable {
 
     @Test
     func `Encode and decode ASCII address`() throws {
@@ -679,10 +705,14 @@ struct EmailAddressCodableTests {
     }
 }
 
+}
+
 // MARK: - Hashable & Equatable Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Hashable & Equatable")
-struct EmailAddressHashableTests {
+struct Hashable {
 
     @Test
     func `Equal addresses have equal hashes`() throws {
@@ -717,10 +747,14 @@ struct EmailAddressHashableTests {
     }
 }
 
+}
+
 // MARK: - Component Access Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Component Access")
-struct EmailAddressComponentTests {
+struct Component {
 
     @Test
     func `Access local part`() throws {
@@ -753,10 +787,14 @@ struct EmailAddressComponentTests {
     }
 }
 
+}
+
 // MARK: - Serialization Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Serialization")
-struct EmailAddressSerializationTests {
+struct Serialization {
 
     @Test
     func `Serialize simple address`() throws {
@@ -798,10 +836,14 @@ struct EmailAddressSerializationTests {
     }
 }
 
+}
+
 // MARK: - Edge Cases and Boundary Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 - Edge Cases")
-struct EdgeCaseTests {
+struct EdgeCase {
 
     @Test
     func `Single character domain labels`() throws {
@@ -866,10 +908,14 @@ struct EdgeCaseTests {
     }
 }
 
+}
+
 // MARK: - UTF-8 Multi-byte Sequence Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 - UTF-8 Byte Sequences")
-struct UTF8ByteSequenceTests {
+struct UTF8ByteSequence {
 
     @Test(
         arguments: [
@@ -910,10 +956,14 @@ struct UTF8ByteSequenceTests {
     }
 }
 
+}
+
 // MARK: - Constructor Tests
 
+extension RFC_6531.EmailAddress.Test {
+
 @Suite("RFC 6531 EmailAddress - Constructors")
-struct EmailAddressConstructorTests {
+struct Constructor {
 
     @Test
     func `Constructor from components without display name`() throws {
@@ -967,4 +1017,6 @@ struct EmailAddressConstructorTests {
 
         #expect(addr.displayName == nil)
     }
+}
+
 }
