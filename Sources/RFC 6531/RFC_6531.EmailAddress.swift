@@ -427,10 +427,10 @@ extension RFC_5322.EmailAddress {
         }
         // After verifying ASCII, RFC 5322 construction from the same valid components
         // is guaranteed to succeed (same local-part rules, same domain)
-        self = RFC_5322.EmailAddress(
+        // swiftlint:disable:next force_try
+        self = try! RFC_5322.EmailAddress(
             displayName: emailAddress.displayName,
-            // swiftlint:disable:next force_try
-            localPart: try! .init(emailAddress.localPart.rawValue),
+            localPart: .init(emailAddress.localPart.rawValue),
             domain: emailAddress.domain
         )
     }
