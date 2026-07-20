@@ -586,6 +586,7 @@ extension RFC_6531.EmailAddress.Test {
             let addr6531 = try RFC_6531.EmailAddress("John Doe <user@example.com>")
             let addr5321 = try RFC_5321.EmailAddress(addr6531)
             #expect(addr5321.address == "user@example.com")
+            #expect(addr5321.displayName == "John Doe")
         }
 
         @Test
@@ -605,6 +606,34 @@ extension RFC_6531.EmailAddress.Test {
         }
 
         @Test
+        func `ASCII address exceeding RFC 5321 total length fails to convert without trapping`()
+            throws
+        {
+            // RFC 6531 imposes no 254-octet composed-address limit, so an
+            // ASCII address that is valid RFC 6531 (local-part <= 64 bytes,
+            // RFC 1123 domain <= 255) can exceed RFC 5321's total-length
+            // limit. The throwing RFC 5321 memberwise init rejects it with
+            // .totalLengthExceeded; this must surface as a thrown
+            // ConversionError, not a runtime trap.
+            //
+            // Note: the RFC 5321 F-004 hardening rejects only non-ASCII
+            // display-name bytes — bare CR/LF currently PASSES the RFC 5321
+            // memberwise init (unlike RFC 5322's F-002 guard), so total
+            // length is the exercisable trap trigger on this path.
+            let label = String(repeating: "a", count: 61)
+            let domain = try RFC_1123.Domain("\(label).\(label).\(label).\(label).com")
+            let addr6531 = RFC_6531.EmailAddress(
+                displayName: nil,
+                localPart: try RFC_6531.EmailAddress.LocalPart("user"),
+                domain: domain
+            )
+            #expect(addr6531.isASCII)
+            #expect(throws: RFC_6531.EmailAddress.ConversionError.self) {
+                _ = try RFC_5321.EmailAddress(addr6531)
+            }
+        }
+
+        @Test
         func `ASCII address converts to RFC 5322`() throws {
             let addr6531 = try RFC_6531.EmailAddress("user@example.com")
             let addr5322 = try RFC_5322.EmailAddress(addr6531)
@@ -615,6 +644,47 @@ extension RFC_6531.EmailAddress.Test {
         func `UTF-8 address fails to convert to RFC 5322`() throws {
             let addr6531 = try RFC_6531.EmailAddress("用户@example.com")
             #expect(throws: RFC_6531.EmailAddress.ConversionError.nonASCIICharacters) {
+                _ = try RFC_5322.EmailAddress(addr6531)
+            }
+        }
+
+        @Test
+        func `ASCII address with display name converts to RFC 5322`() throws {
+            let addr6531 = try RFC_6531.EmailAddress("John Doe <user@example.com>")
+            let addr5322 = try RFC_5322.EmailAddress(addr6531)
+            #expect(addr5322.address == "user@example.com")
+            #expect(addr5322.displayName == "John Doe")
+        }
+
+        @Test
+        func `ASCII display name with bare CR fails to convert to RFC 5322 without trapping`()
+            throws
+        {
+            // Bare CR passes the ASCII pre-check but is rejected by the
+            // RFC 5322 initializer's header-injection hardening. This must
+            // surface as a thrown ConversionError, not a runtime trap.
+            let addr6531 = RFC_6531.EmailAddress(
+                displayName: "Bad\rName",
+                localPart: try RFC_6531.EmailAddress.LocalPart("user"),
+                domain: try RFC_1123.Domain("example.com")
+            )
+            #expect(addr6531.isASCII)
+            #expect(throws: RFC_6531.EmailAddress.ConversionError.self) {
+                _ = try RFC_5322.EmailAddress(addr6531)
+            }
+        }
+
+        @Test
+        func `ASCII display name with bare LF fails to convert to RFC 5322 without trapping`()
+            throws
+        {
+            let addr6531 = RFC_6531.EmailAddress(
+                displayName: "Bad\nName",
+                localPart: try RFC_6531.EmailAddress.LocalPart("user"),
+                domain: try RFC_1123.Domain("example.com")
+            )
+            #expect(addr6531.isASCII)
+            #expect(throws: RFC_6531.EmailAddress.ConversionError.self) {
                 _ = try RFC_5322.EmailAddress(addr6531)
             }
         }

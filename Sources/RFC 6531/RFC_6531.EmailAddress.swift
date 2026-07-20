@@ -399,39 +399,63 @@ extension RFC_6531.EmailAddress: RawRepresentable {
 extension RFC_5321.EmailAddress {
     /// Creates an RFC 5321 email address from an RFC 6531 address
     ///
-    /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address contains non-ASCII
+    /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address
+    ///   contains non-ASCII, or `.notRepresentableAsRFC5321` if the ASCII components are
+    ///   rejected by the RFC 5321 grammar (e.g. a display name containing a bare CR or LF,
+    ///   which RFC 5321 rejects as header injection).
     public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError)
     {
         guard emailAddress.isASCII else {
             throw RFC_6531.EmailAddress.ConversionError.nonASCIICharacters
         }
-        // After verifying ASCII, RFC 5321 construction from the same valid components
-        // is guaranteed to succeed (same local-part rules, same domain, within length limits)
-        // swiftlint:disable:next force_try
-        self = try! RFC_5321.EmailAddress(
-            displayName: emailAddress.displayName,
-            localPart: .init(emailAddress.localPart.rawValue),
-            domain: emailAddress.domain
-        )
+        let localPart: RFC_5321.EmailAddress.LocalPart
+        do {
+            localPart = try RFC_5321.EmailAddress.LocalPart(emailAddress.localPart.rawValue)
+        } catch {
+            throw RFC_6531.EmailAddress.ConversionError.notRepresentableAsRFC5321(
+                .invalidLocalPart(error)
+            )
+        }
+        do {
+            self = try RFC_5321.EmailAddress(
+                displayName: emailAddress.displayName,
+                localPart: localPart,
+                domain: emailAddress.domain
+            )
+        } catch {
+            throw RFC_6531.EmailAddress.ConversionError.notRepresentableAsRFC5321(error)
+        }
     }
 }
 
 extension RFC_5322.EmailAddress {
     /// Creates an RFC 5322 email address from an RFC 6531 address
     ///
-    /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address contains non-ASCII
+    /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address
+    ///   contains non-ASCII, or `.notRepresentableAsRFC5322` if the ASCII components are
+    ///   rejected by the RFC 5322 grammar (e.g. a display name containing a bare CR or LF,
+    ///   which RFC 5322 rejects as header injection).
     public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError)
     {
         guard emailAddress.isASCII else {
             throw RFC_6531.EmailAddress.ConversionError.nonASCIICharacters
         }
-        // After verifying ASCII, RFC 5322 construction from the same valid components
-        // is guaranteed to succeed (same local-part rules, same domain)
-        // swiftlint:disable:next force_try
-        self = try! RFC_5322.EmailAddress(
-            displayName: emailAddress.displayName,
-            localPart: .init(emailAddress.localPart.rawValue),
-            domain: emailAddress.domain
-        )
+        let localPart: RFC_5322.EmailAddress.LocalPart
+        do {
+            localPart = try RFC_5322.EmailAddress.LocalPart(emailAddress.localPart.rawValue)
+        } catch {
+            throw RFC_6531.EmailAddress.ConversionError.notRepresentableAsRFC5322(
+                .localPart(error)
+            )
+        }
+        do {
+            self = try RFC_5322.EmailAddress(
+                displayName: emailAddress.displayName,
+                localPart: localPart,
+                domain: emailAddress.domain
+            )
+        } catch {
+            throw RFC_6531.EmailAddress.ConversionError.notRepresentableAsRFC5322(error)
+        }
     }
 }
