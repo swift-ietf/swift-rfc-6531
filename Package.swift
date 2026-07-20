@@ -34,11 +34,8 @@ let package = Package(
         .package(url: "https://github.com/swift-primitives/swift-binary-serializer-primitives.git", branch: "main"),
         .package(url: "https://github.com/swift-incits/swift-incits-4-1986.git", branch: "main"),
         .package(url: "https://github.com/swift-ietf/swift-rfc-1123.git", branch: "main"),
-        // Pre-publish path dependencies: the F-004 (5321) and F-002 (5322)
-        // hardenings (throwing memberwise inits) exist only in the local
-        // sibling repos until they are pushed/tagged.
-        .package(path: "../swift-rfc-5321"),
-        .package(path: "../swift-rfc-5322")
+        .package(url: "https://github.com/swift-ietf/swift-rfc-5321.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-5322.git", branch: "main")
     ],
     targets: [
         .target(
