@@ -1,7 +1,7 @@
 # Swift RFC 6531
 
-[![CI](https://github.com/swift-ietf/swift-rfc-6531/workflows/CI/badge.svg)](https://github.com/swift-ietf/swift-rfc-6531/actions/workflows/ci.yml)
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
+[![CI](https://github.com/swift-ietf/swift-rfc-6531/workflows/CI/badge.svg)](https://github.com/swift-ietf/swift-rfc-6531/actions/workflows/ci.yml)
 
 Swift implementation of RFC 6531: SMTP Extension for Internationalized Email (SMTPUTF8) - internationalized email address standard.
 
