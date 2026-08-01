@@ -20,11 +20,12 @@ extension RFC_6531.EmailAddress.Error: CustomStringConvertible {
         switch self {
         case .missingAtSign:
             return "Email address must contain @"
+
         case .invalidLocalPart(let error):
             return "Invalid local-part: \(error)"
+
         case .invalidDomain(let description):
             return "Invalid domain: \(description)"
         }
     }
 }
-

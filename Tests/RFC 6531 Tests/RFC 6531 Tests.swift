@@ -728,7 +728,7 @@ extension RFC_6531.EmailAddress.Test {
 
 extension RFC_6531.EmailAddress.Test {
 
-    @Suite("RFC 6531 EmailAddress - Round-Trip")
+    @Suite
     struct `Round Trip` {
 
         @Test(
@@ -955,7 +955,7 @@ extension RFC_6531.EmailAddress.Test {
 
 extension RFC_6531.EmailAddress.Test {
 
-    @Suite("RFC 6531 - Edge Cases")
+    @Suite
     struct `Edge Case` {
 
         @Test
@@ -1035,7 +1035,7 @@ extension RFC_6531.EmailAddress.Test {
 
 extension RFC_6531.EmailAddress.Test {
 
-    @Suite("RFC 6531 - UTF-8 Byte Sequences")
+    @Suite
     struct `UTF8 Byte Sequence` {
 
         @Test(

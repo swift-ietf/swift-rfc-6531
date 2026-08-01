@@ -141,6 +141,7 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
                 // REASON: ASCII.Code's initializer is a cross-module (INCITS)
                 // failable lift; this site only needs the pass/fail signal to
                 // decide whether the display name needs quoting.
+                // swiftlint:disable:next no_try_optional
                 guard let code = try? ASCII.Code(Byte(byte)) else { return true }
                 return !(code.isLetter || code.isDigit || code.isWhitespace)
             })
@@ -201,6 +202,7 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
                 // REASON: ASCII.Code's initializer is a cross-module (INCITS)
                 // failable lift; this site only needs the pass/fail signal to
                 // decide whether the display name needs quoting.
+                // swiftlint:disable:next no_try_optional
                 guard let code = try? ASCII.Code(Byte(byte)) else { return true }
                 return !(code.isLetter || code.isDigit || code.isWhitespace)
             })
@@ -267,10 +269,13 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
             switch bytes[index] {
             case ASCII.Code.lessThanSign.byte:
                 lessThanIndex = index
+
             case ASCII.Code.greaterThanSign.byte:
                 greaterThanIndex = index
+
             case ASCII.Code.commercialAt.byte:
                 lastAtIndex = index
+
             default:
                 break
             }

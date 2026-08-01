@@ -224,6 +224,7 @@ extension RFC_6531.EmailAddress.LocalPart {
             // swift-linter:disable:next try optional
             // REASON: ASCII.Code's initializer is a cross-module (INCITS) failable
             // lift; this site only needs the pass/fail signal to skip non-ASCII bytes.
+            // swiftlint:disable:next no_try_optional
             guard let code = try? ASCII.Code(byte) else { continue }
 
             // ASCII bytes must be valid atext per RFC 5322

@@ -20,15 +20,20 @@ extension RFC_6531.EmailAddress.LocalPart.Error: CustomStringConvertible {
         switch self {
         case .empty:
             return "Local-part cannot be empty"
+
         case .tooLong(let length):
             return
                 "Local-part UTF-8 byte length \(length) exceeds maximum of \(RFC_6531.EmailAddress.LocalPart.Limits.maxUTF8Length)"
+
         case .invalidUTF8Atom(let value):
             return "Invalid UTF-8 atom format: '\(value)'"
+
         case .invalidQuotedString(let value):
             return "Invalid quoted string format: '\(value)'"
+
         case .consecutiveDots(let value):
             return "Local-part cannot contain consecutive dots: '\(value)'"
+
         case .leadingOrTrailingDot(let value):
             return "Local-part cannot begin or end with a dot: '\(value)'"
         }

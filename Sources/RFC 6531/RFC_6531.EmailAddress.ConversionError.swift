@@ -34,8 +34,10 @@ extension RFC_6531.EmailAddress.ConversionError: CustomStringConvertible {
         switch self {
         case .nonASCIICharacters:
             return "Cannot convert internationalized email address to ASCII-only format"
+
         case .notRepresentableAsRFC5321(let underlying):
             return "Cannot convert email address to RFC 5321: \(underlying)"
+
         case .notRepresentableAsRFC5322(let underlying):
             return "Cannot convert email address to RFC 5322: \(underlying)"
         }

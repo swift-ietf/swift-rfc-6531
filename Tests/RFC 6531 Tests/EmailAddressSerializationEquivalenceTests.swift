@@ -48,7 +48,8 @@ struct `EmailAddress Serialization Equivalence` {
         }
 
         @Test
-        func `ASCII verb output equals Binary witness output for the non-ASCII UTF-8 path`() throws {
+        func `ASCII verb output equals Binary witness output for the non-ASCII UTF-8 path`() throws
+        {
             // Non-ASCII display name AND non-ASCII local-part exercise the lossless
             // `ASCII.Code(unchecked: Byte($0))` lift on bytes >= 0x80 — the distinguishing
             // RFC 6531 (SMTPUTF8) behaviour the re-expression must preserve.
