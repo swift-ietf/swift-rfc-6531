@@ -39,26 +39,6 @@ extension RFC_6531.EmailAddress {
     }
 }
 
-// MARK: - Storage
-
-extension RFC_6531.EmailAddress.LocalPart {
-    private enum Storage: Hashable, Sendable, Codable {
-        case utf8DotAtom
-        case quoted
-    }
-}
-
-// MARK: - Limits
-
-extension RFC_6531.EmailAddress.LocalPart {
-    package enum Limits {}
-}
-
-extension RFC_6531.EmailAddress.LocalPart.Limits {
-    /// Maximum length in UTF-8 bytes per RFC 6531
-    static let maxUTF8Length = 64
-}
-
 // MARK: - Serialization (replacement for the retired combined ASCII serializable protocol)
 
 extension RFC_6531.EmailAddress.LocalPart: Swift.RawRepresentable, ASCII.Serializable, Binary
@@ -69,7 +49,11 @@ extension RFC_6531.EmailAddress.LocalPart: Swift.RawRepresentable, ASCII.Seriali
     /// Re-provides the `Swift.RawRepresentable` requirement (previously inherited
     /// from the retired combined ASCII serializable protocol).
     public init?(rawValue: String) {
-        try? self.init(rawValue)
+        do throws(Error) {
+            try self.init(rawValue)
+        } catch {
+            return nil
+        }
     }
 
     /// Serializes `value` as ASCII bytes into `buffer` (own `ASCII.Serializable` verb).
@@ -83,6 +67,10 @@ extension RFC_6531.EmailAddress.LocalPart: Swift.RawRepresentable, ASCII.Seriali
         _ value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == ASCII.Code {
+        // swift-linter:disable:next raw value access
+        // REASON: same-package implementation use — the type's own serialize witness.
+        // swift-linter:disable:next chained rawvalue access
+        // REASON: same-package implementation use — the type's own serialize witness.
         for byte in value.rawValue.utf8 { buffer.append(ASCII.Code(byte)) }
     }
 
@@ -126,7 +114,7 @@ extension RFC_6531.EmailAddress.LocalPart: ASCII.Parseable {
     /// - Zero intermediate allocations for structural validation
     /// - Single String allocation for `rawValue` storage (required)
     /// - Atoms validated via String iteration (required for Unicode properties)
-    public init<Bytes: Collection>(ascii bytes: Bytes) throws(Error)
+    public init<Bytes: Swift.Collection>(ascii bytes: Bytes) throws(Error)
     where Bytes.Element == Byte {
         // Empty check
         guard let firstByte = bytes.first else { throw Error.empty }
@@ -151,6 +139,9 @@ extension RFC_6531.EmailAddress.LocalPart: ASCII.Parseable {
             }
 
             self.init(
+                // swift-linter:disable:next unchecked call site
+                // REASON: extension-init internals, CONV-001 same-package use —
+                // this call site is the wrapper's own validated-components forward.
                 __unchecked: (),
                 storage: .quoted,
                 rawValue: String(decoding: bytes, as: UTF8.self)
@@ -200,6 +191,9 @@ extension RFC_6531.EmailAddress.LocalPart: ASCII.Parseable {
             }
 
             self.init(
+                // swift-linter:disable:next unchecked call site
+                // REASON: extension-init internals, CONV-001 same-package use —
+                // this call site is the wrapper's own validated-components forward.
                 __unchecked: (),
                 storage: .utf8DotAtom,
                 rawValue: String(decoding: bytes, as: UTF8.self)
@@ -220,13 +214,16 @@ extension RFC_6531.EmailAddress.LocalPart {
     /// This means ALL non-ASCII UTF-8 characters are allowed, including emojis.
     ///
     /// ASCII bytes must be valid atext per RFC 5322 Section 3.2.3.
-    private static func isValidUTF8Atom<Bytes: Collection>(
+    private static func isValidUTF8Atom<Bytes: Swift.Collection>(
         _ bytes: Bytes
     ) -> Bool where Bytes.Element == Byte {
         guard !bytes.isEmpty else { return false }
 
         for byte in bytes {
             // UTF8-non-ascii (byte >= 0x80) is allowed; the lift returns nil there.
+            // swift-linter:disable:next try optional
+            // REASON: ASCII.Code's initializer is a cross-module (INCITS) failable
+            // lift; this site only needs the pass/fail signal to skip non-ASCII bytes.
             guard let code = try? ASCII.Code(byte) else { continue }
 
             // ASCII bytes must be valid atext per RFC 5322
@@ -238,7 +235,7 @@ extension RFC_6531.EmailAddress.LocalPart {
     }
 
     /// Validates quoted string content at byte level (zero allocation)
-    private static func isValidQuotedContent<Bytes: Collection>(
+    private static func isValidQuotedContent<Bytes: Swift.Collection>(
         _ bytes: Bytes
     ) -> Bool where Bytes.Element == Byte {
         guard !bytes.isEmpty else { return false }
@@ -281,6 +278,8 @@ extension RFC_6531.EmailAddress.LocalPart: Hashable {
     }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
+        // swift-linter:disable:next raw value access
+        // REASON: same-package implementation use — the type's own Equatable witness.
         lhs.rawValue == rhs.rawValue
     }
 }

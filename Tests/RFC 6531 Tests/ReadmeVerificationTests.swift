@@ -14,6 +14,15 @@ import Testing
 @Suite
 struct `README Verification` {
 
+    @Suite
+    struct Unit {}
+
+    @Suite
+    struct `Edge Case` {}
+
+    @Suite
+    struct Integration {
+
     @Test
     func `README Line 53-56: Parse internationalized email address`() throws {
         let email = try RFC_6531.EmailAddress("用户@example.com")
@@ -99,5 +108,6 @@ struct `README Verification` {
         #expect(throws: RFC_6531.EmailAddress.Error.self) {
             _ = try RFC_6531.EmailAddress("user..name@example.com")
         }
+    }
     }
 }

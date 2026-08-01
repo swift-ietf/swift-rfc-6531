@@ -18,44 +18,54 @@ import Testing
 @Suite
 struct `EmailAddress Serialization Equivalence` {
 
-    @Test
-    func `ASCII verb output equals Binary witness output for the quoting path`() throws {
-        // A display name containing a `"` forces the quoting wrapper — exactly the
-        // branch transcribed into the ASCII verb.
-        let email = RFC_6531.EmailAddress(
-            displayName: "Doe \"JD\" John",
-            localPart: try RFC_6531.EmailAddress.LocalPart("jd"),
-            domain: try RFC_1123.Domain("example.com")
-        )
+    @Suite
+    struct Unit {}
 
-        // ASCII.Serializable verb output, projected to bytes.
-        let viaASCII: [Byte] = email.serialized
+    @Suite
+    struct `Edge Case` {}
 
-        // Binary.Serializable witness output.
-        var viaBinary: [Byte] = []
-        RFC_6531.EmailAddress.serialize(email, into: &viaBinary)
+    @Suite
+    struct Integration {
 
-        #expect(viaASCII == viaBinary)
-    }
+        @Test
+        func `ASCII verb output equals Binary witness output for the quoting path`() throws {
+            // A display name containing a `"` forces the quoting wrapper — exactly the
+            // branch transcribed into the ASCII verb.
+            let email = RFC_6531.EmailAddress(
+                displayName: "Doe \"JD\" John",
+                localPart: try RFC_6531.EmailAddress.LocalPart("jd"),
+                domain: try RFC_1123.Domain("example.com")
+            )
 
-    @Test
-    func `ASCII verb output equals Binary witness output for the non-ASCII UTF-8 path`() throws {
-        // Non-ASCII display name AND non-ASCII local-part exercise the lossless
-        // `ASCII.Code(unchecked: Byte($0))` lift on bytes >= 0x80 — the distinguishing
-        // RFC 6531 (SMTPUTF8) behaviour the re-expression must preserve.
-        let email = RFC_6531.EmailAddress(
-            displayName: "张三",
-            localPart: try RFC_6531.EmailAddress.LocalPart("用户"),
-            domain: try RFC_1123.Domain("example.com")
-        )
+            // ASCII.Serializable verb output, projected to bytes.
+            let viaASCII: [Byte] = email.serialized
 
-        // ASCII.Serializable verb output, projected to bytes.
-        let viaASCII: [Byte] = email.serialized
+            // Binary.Serializable witness output.
+            var viaBinary: [Byte] = []
+            RFC_6531.EmailAddress.serialize(email, into: &viaBinary)
 
-        // Binary.Serializable witness output.
-        var viaBinary: [Byte] = []
-        RFC_6531.EmailAddress.serialize(email, into: &viaBinary)
+            #expect(viaASCII == viaBinary)
+        }
 
-        #expect(viaASCII == viaBinary)
+        @Test
+        func `ASCII verb output equals Binary witness output for the non-ASCII UTF-8 path`() throws {
+            // Non-ASCII display name AND non-ASCII local-part exercise the lossless
+            // `ASCII.Code(unchecked: Byte($0))` lift on bytes >= 0x80 — the distinguishing
+            // RFC 6531 (SMTPUTF8) behaviour the re-expression must preserve.
+            let email = RFC_6531.EmailAddress(
+                displayName: "张三",
+                localPart: try RFC_6531.EmailAddress.LocalPart("用户"),
+                domain: try RFC_1123.Domain("example.com")
+            )
+
+            // ASCII.Serializable verb output, projected to bytes.
+            let viaASCII: [Byte] = email.serialized
+
+            // Binary.Serializable witness output.
+            var viaBinary: [Byte] = []
+            RFC_6531.EmailAddress.serialize(email, into: &viaBinary)
+
+            #expect(viaASCII == viaBinary)
+        }
     }
 }
