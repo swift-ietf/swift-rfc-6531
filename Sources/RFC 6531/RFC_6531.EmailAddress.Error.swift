@@ -3,8 +3,8 @@
 //
 // Error types for RFC 6531 email address parsing
 
-public import RFC_5321
-public import RFC_5322
+import RFC_5321
+import RFC_5322
 
 extension RFC_6531.EmailAddress {
     /// Errors that can occur when parsing an RFC 6531 email address
