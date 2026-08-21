@@ -1,24 +1,13 @@
-//
-//  RFC 6531 Tests.swift
-//  swift-rfc-6531
-//
-//  Exhaustive RFC 6531 compliance tests for internationalized email addresses
-//
-
 import Foundation
 import RFC_5321
 import RFC_5322
 import RFC_6531
 import Testing
 
-// MARK: - LocalPart Valid Cases
-
 extension RFC_6531.EmailAddress.LocalPart {
 
     @Suite("RFC 6531 LocalPart - Valid Cases")
     struct Test {
-
-        // MARK: ASCII Atoms
 
         @Test(
             arguments: [
@@ -27,8 +16,7 @@ extension RFC_6531.EmailAddress.LocalPart {
         )
         func `Valid ASCII single character local parts`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
 
@@ -60,12 +48,9 @@ extension RFC_6531.EmailAddress.LocalPart {
         )
         func `Valid ASCII atoms`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
-
-        // MARK: Dot-atoms
 
         @Test(
             arguments: [
@@ -79,52 +64,47 @@ extension RFC_6531.EmailAddress.LocalPart {
         )
         func `Valid dot-atom local parts`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
 
-        // MARK: UTF-8 Local Parts (RFC 6531 extension)
-
         @Test(
             arguments: [
-                "用",  // Chinese (3-byte UTF-8)
-                "ユ",  // Japanese Katakana (3-byte)
-                "한",  // Korean (3-byte)
-                "ä",  // German umlaut (2-byte)
-                "é",  // French accent (2-byte)
-                "ñ",  // Spanish tilde (2-byte)
-                "ß",  // German eszett (2-byte)
-                "θ",  // Greek theta (2-byte)
-                "ж",  // Cyrillic (2-byte)
-                "א",  // Hebrew (2-byte)
-                "م",  // Arabic (2-byte)
-                "🙂",  // Emoji (4-byte UTF-8) - allowed per RFC 6531 UTF8-non-ascii
+                "用",
+                "ユ",
+                "한",
+                "ä",
+                "é",
+                "ñ",
+                "ß",
+                "θ",
+                "ж",
+                "א",
+                "م",
+                "🙂",
             ]
         )
         func `Valid UTF-8 single characters`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
 
         @Test(
             arguments: [
-                "用户",  // Chinese: "user"
-                "用户名",  // Chinese: "username"
-                "ユーザー",  // Japanese: "user"
-                "사용자",  // Korean: "user"
-                "benutzér",  // Mixed: ASCII + accent
-                "пользователь",  // Russian: "user"
-                "משתמש",  // Hebrew: "user"
-                "مستخدم",  // Arabic: "user"
+                "用户",
+                "用户名",
+                "ユーザー",
+                "사용자",
+                "benutzér",
+                "пользователь",
+                "משתמש",
+                "مستخدم",
             ]
         )
         func `Valid UTF-8 words`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
 
@@ -139,8 +119,7 @@ extension RFC_6531.EmailAddress.LocalPart {
         )
         func `Valid UTF-8 dot-atoms`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
 
@@ -154,12 +133,9 @@ extension RFC_6531.EmailAddress.LocalPart {
         )
         func `Valid mixed ASCII and UTF-8`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
-
-        // MARK: Quoted Strings
 
         @Test(
             arguments: [
@@ -176,8 +152,7 @@ extension RFC_6531.EmailAddress.LocalPart {
         )
         func `Valid quoted strings`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
 
@@ -190,46 +165,33 @@ extension RFC_6531.EmailAddress.LocalPart {
         )
         func `Valid quoted UTF-8 strings`(localPart: String) throws {
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
         }
-
-        // MARK: Length Boundary (64 UTF-8 bytes max)
 
         @Test
         func `Maximum length ASCII local part (64 bytes)`() throws {
             let localPart = String(repeating: "a", count: 64)
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
-            // swift-linter:disable:next chained rawvalue access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue.utf8.count == 64)
         }
 
         @Test
         func `Maximum length UTF-8 local part (64 bytes with 3-byte chars)`() throws {
-            // 用 is 3 bytes in UTF-8, so 21 chars = 63 bytes + 1 ASCII = 64
+
             let localPart = String(repeating: "用", count: 21) + "a"
             let lp = try RFC_6531.EmailAddress.LocalPart(localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue == localPart)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
-            // swift-linter:disable:next chained rawvalue access
-            // REASON: same-package test implementation use.
+
             #expect(lp.rawValue.utf8.count == 64)
         }
     }
 
 }
-
-// MARK: - LocalPart Invalid Cases
 
 extension RFC_6531.EmailAddress.LocalPart.Test {
 
@@ -243,8 +205,6 @@ extension RFC_6531.EmailAddress.LocalPart.Test {
             }
         }
 
-        // MARK: Length Violations
-
         @Test
         func `Local part too long (65 ASCII bytes)`() throws {
             let localPart = String(repeating: "a", count: 65)
@@ -255,14 +215,12 @@ extension RFC_6531.EmailAddress.LocalPart.Test {
 
         @Test
         func `Local part too long (66 UTF-8 bytes)`() throws {
-            // 用 is 3 bytes, 22 chars = 66 bytes
+
             let localPart = String(repeating: "用", count: 22)
             #expect(throws: RFC_6531.EmailAddress.LocalPart.Error.tooLong(66)) {
                 _ = try RFC_6531.EmailAddress.LocalPart(localPart)
             }
         }
-
-        // MARK: Dot Violations
 
         @Test
         func `Leading dot`() throws {
@@ -293,22 +251,20 @@ extension RFC_6531.EmailAddress.LocalPart.Test {
             }
         }
 
-        // MARK: Invalid Characters in Unquoted Atoms
-
         @Test(
             arguments: [
-                "user name",  // space
-                "user(paren",  // parenthesis
+                "user name",
+                "user(paren",
                 "user)paren",
-                "user<angle",  // angle brackets
+                "user<angle",
                 "user>angle",
-                "user[bracket",  // brackets
+                "user[bracket",
                 "user]bracket",
-                "user:colon",  // colon
-                "user;semicolon",  // semicolon
-                "user,comma",  // comma
-                "user\"quote",  // unescaped quote
-                "user\\backslash",  // unescaped backslash
+                "user:colon",
+                "user;semicolon",
+                "user,comma",
+                "user\"quote",
+                "user\\backslash",
             ]
         )
         func `Invalid characters in unquoted atom`(localPart: String) throws {
@@ -316,8 +272,6 @@ extension RFC_6531.EmailAddress.LocalPart.Test {
                 _ = try RFC_6531.EmailAddress.LocalPart(localPart)
             }
         }
-
-        // MARK: Invalid Quoted Strings
 
         @Test
         func `Unclosed quoted string`() throws {
@@ -343,14 +297,10 @@ extension RFC_6531.EmailAddress.LocalPart.Test {
 
 }
 
-// MARK: - EmailAddress Valid Cases
-
 extension RFC_6531.EmailAddress {
 
     @Suite("RFC 6531 EmailAddress - Valid Cases")
     struct Test {
-
-        // MARK: Basic Formats
 
         @Test(
             arguments: [
@@ -368,8 +318,7 @@ extension RFC_6531.EmailAddress {
         func `Valid simple email addresses`(email: String) throws {
             let addr = try RFC_6531.EmailAddress(email)
             #expect(addr.displayName == nil)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(addr.rawValue == email)
         }
 
@@ -385,8 +334,6 @@ extension RFC_6531.EmailAddress {
             let addr = try RFC_6531.EmailAddress(email)
             #expect(addr.displayName == nil)
         }
-
-        // MARK: UTF-8 Email Addresses (RFC 6531)
 
         @Test(
             arguments: [
@@ -416,8 +363,6 @@ extension RFC_6531.EmailAddress {
             let addr = try RFC_6531.EmailAddress(email)
             #expect(addr.isASCII == false)
         }
-
-        // MARK: Display Name Formats
 
         @Test(
             arguments: [
@@ -481,8 +426,6 @@ extension RFC_6531.EmailAddress {
             #expect(addr.displayName == nil)
         }
 
-        // MARK: Quoted Local Parts in Addresses
-
         @Test(
             arguments: [
                 "\"user name\"@example.com",
@@ -493,8 +436,6 @@ extension RFC_6531.EmailAddress {
         func `Valid quoted local parts in addresses`(email: String) throws {
             _ = try RFC_6531.EmailAddress(email)
         }
-
-        // MARK: isASCII Property
 
         @Test
         func `isASCII is true for ASCII-only addresses`() throws {
@@ -516,8 +457,6 @@ extension RFC_6531.EmailAddress {
     }
 
 }
-
-// MARK: - EmailAddress Invalid Cases
 
 extension RFC_6531.EmailAddress.Test {
 
@@ -599,8 +538,6 @@ extension RFC_6531.EmailAddress.Test {
 
 }
 
-// MARK: - Conversion Tests
-
 extension RFC_6531.EmailAddress.Test {
 
     @Suite("RFC 6531 EmailAddress - Conversions")
@@ -641,17 +578,7 @@ extension RFC_6531.EmailAddress.Test {
         func `ASCII address exceeding RFC 5321 total length fails to convert without trapping`()
             throws
         {
-            // RFC 6531 imposes no 254-octet composed-address limit, so an
-            // ASCII address that is valid RFC 6531 (local-part <= 64 bytes,
-            // RFC 1123 domain <= 255) can exceed RFC 5321's total-length
-            // limit. The throwing RFC 5321 memberwise init rejects it with
-            // .totalLengthExceeded; this must surface as a thrown
-            // ConversionError, not a runtime trap.
-            //
-            // Note: the RFC 5321 F-004 hardening rejects only non-ASCII
-            // display-name bytes — bare CR/LF currently PASSES the RFC 5321
-            // memberwise init (unlike RFC 5322's F-002 guard), so total
-            // length is the exercisable trap trigger on this path.
+
             let label = String(repeating: "a", count: 61)
             let domain = try RFC_1123.Domain("\(label).\(label).\(label).\(label).com")
             let addr6531 = RFC_6531.EmailAddress(
@@ -692,9 +619,7 @@ extension RFC_6531.EmailAddress.Test {
         func `ASCII display name with bare CR fails to convert to RFC 5322 without trapping`()
             throws
         {
-            // Bare CR passes the ASCII pre-check but is rejected by the
-            // RFC 5322 initializer's header-injection hardening. This must
-            // surface as a thrown ConversionError, not a runtime trap.
+
             let addr6531 = RFC_6531.EmailAddress(
                 displayName: "Bad\rName",
                 localPart: try RFC_6531.EmailAddress.LocalPart("user"),
@@ -724,8 +649,6 @@ extension RFC_6531.EmailAddress.Test {
 
 }
 
-// MARK: - Round-Trip Tests
-
 extension RFC_6531.EmailAddress.Test {
 
     @Suite
@@ -741,8 +664,7 @@ extension RFC_6531.EmailAddress.Test {
         )
         func `Round-trip ASCII addresses`(email: String) throws {
             let addr = try RFC_6531.EmailAddress(email)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             let serialized = addr.rawValue
             let reparsed = try RFC_6531.EmailAddress(serialized)
             #expect(addr == reparsed)
@@ -757,8 +679,7 @@ extension RFC_6531.EmailAddress.Test {
         )
         func `Round-trip UTF-8 addresses`(email: String) throws {
             let addr = try RFC_6531.EmailAddress(email)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             let serialized = addr.rawValue
             let reparsed = try RFC_6531.EmailAddress(serialized)
             #expect(addr == reparsed)
@@ -772,8 +693,7 @@ extension RFC_6531.EmailAddress.Test {
         )
         func `Round-trip with display names`(email: String) throws {
             let addr = try RFC_6531.EmailAddress(email)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             let serialized = addr.rawValue
             let reparsed = try RFC_6531.EmailAddress(serialized)
             #expect(addr.displayName == reparsed.displayName)
@@ -783,8 +703,6 @@ extension RFC_6531.EmailAddress.Test {
     }
 
 }
-
-// MARK: - Codable Tests
 
 extension RFC_6531.EmailAddress.Test {
 
@@ -817,8 +735,6 @@ extension RFC_6531.EmailAddress.Test {
     }
 
 }
-
-// MARK: - Hashable & Equatable Tests
 
 extension RFC_6531.EmailAddress.Test {
 
@@ -860,8 +776,6 @@ extension RFC_6531.EmailAddress.Test {
 
 }
 
-// MARK: - Component Access Tests
-
 extension RFC_6531.EmailAddress.Test {
 
     @Suite("RFC 6531 EmailAddress - Component Access")
@@ -870,8 +784,7 @@ extension RFC_6531.EmailAddress.Test {
         @Test
         func `Access local part`() throws {
             let addr = try RFC_6531.EmailAddress("user@example.com")
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(addr.localPart.rawValue == "user")
         }
 
@@ -901,8 +814,6 @@ extension RFC_6531.EmailAddress.Test {
     }
 
 }
-
-// MARK: - Serialization Tests
 
 extension RFC_6531.EmailAddress.Test {
 
@@ -951,8 +862,6 @@ extension RFC_6531.EmailAddress.Test {
 
 }
 
-// MARK: - Edge Cases and Boundary Tests
-
 extension RFC_6531.EmailAddress.Test {
 
     @Suite
@@ -972,10 +881,9 @@ extension RFC_6531.EmailAddress.Test {
 
         @Test
         func `All allowed special characters in local part`() throws {
-            // Per RFC 5321/6531, these are allowed in atoms: !#$%&'*+\-/=?^_`{|}~
+
             let addr = try RFC_6531.EmailAddress("a!#$%&'*+-/=?^_`{|}~b@example.com")
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(addr.localPart.rawValue == "a!#$%&'*+-/=?^_`{|}~b")
         }
 
@@ -994,16 +902,14 @@ extension RFC_6531.EmailAddress.Test {
         @Test
         func `4-byte UTF-8 emoji in local part (allowed per RFC 6531)`() throws {
             let addr = try RFC_6531.EmailAddress("user🙂@example.com")
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(addr.localPart.rawValue == "user🙂")
         }
 
         @Test
         func `Emoji in quoted local part`() throws {
             let addr = try RFC_6531.EmailAddress("\"user🙂\"@example.com")
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(addr.localPart.rawValue == "\"user🙂\"")
         }
 
@@ -1011,8 +917,7 @@ extension RFC_6531.EmailAddress.Test {
         func `RawRepresentable conformance`() throws {
             let addr = RFC_6531.EmailAddress(rawValue: "user@example.com")
             #expect(addr != nil)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package test implementation use.
+
             #expect(addr?.rawValue == "user@example.com")
         }
 
@@ -1031,8 +936,6 @@ extension RFC_6531.EmailAddress.Test {
 
 }
 
-// MARK: - UTF-8 Multi-byte Sequence Tests
-
 extension RFC_6531.EmailAddress.Test {
 
     @Suite
@@ -1040,9 +943,9 @@ extension RFC_6531.EmailAddress.Test {
 
         @Test(
             arguments: [
-                "café@example.com",  // é = C3 A9
-                "naïve@example.com",  // ï = C3 AF
-                "Ångström@example.com",  // Å = C3 85
+                "café@example.com",
+                "naïve@example.com",
+                "Ångström@example.com",
             ]
         )
         func `2-byte UTF-8 sequences (Latin Extended, etc.)`(email: String) throws {
@@ -1052,11 +955,11 @@ extension RFC_6531.EmailAddress.Test {
 
         @Test(
             arguments: [
-                "日本語@example.com",  // Japanese
-                "한국어@example.com",  // Korean
-                "中文@example.com",  // Chinese
-                "עברית@example.com",  // Hebrew
-                "العربية@example.com",  // Arabic
+                "日本語@example.com",
+                "한국어@example.com",
+                "中文@example.com",
+                "עברית@example.com",
+                "العربية@example.com",
             ]
         )
         func `3-byte UTF-8 sequences (CJK, etc.)`(email: String) throws {
@@ -1078,8 +981,6 @@ extension RFC_6531.EmailAddress.Test {
     }
 
 }
-
-// MARK: - Constructor Tests
 
 extension RFC_6531.EmailAddress.Test {
 

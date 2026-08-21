@@ -1,8 +1,3 @@
-// RFC_6531.EmailAddress.swift
-// swift-rfc-6531
-//
-// Internationalized email address per RFC 6531
-
 public import ASCII_Serializer_Primitives
 public import Binary_Serializable_Primitives
 import INCITS_4_1986
@@ -13,37 +8,15 @@ public import RFC_5322
 import Standard_Library_Extensions
 
 extension RFC_6531 {
-    /// RFC 6531 compliant internationalized email address (SMTPUTF8)
-    ///
-    /// Supports UTF-8 characters in the local-part and display name.
-    ///
-    /// ## Constraints
-    ///
-    /// Per RFC 6531:
-    /// - Local-part may contain UTF-8 characters
-    /// - Local-part maximum 64 UTF-8 bytes
-    /// - Domain must be ASCII (per RFC 1123)
-    ///
-    /// ## Example
-    ///
-    /// ```swift
-    /// let email = try RFC_6531.EmailAddress("用户@example.com")
-    /// print(email.localPart)  // "用户"
-    /// print(email.domain)     // "example.com"
-    /// ```
+
     public struct EmailAddress: Sendable, Codable {
-        /// The display name, if present
+
         public let displayName: String?
 
-        /// The local part (before @)
         public let localPart: LocalPart
 
-        /// The domain part (after @)
         public let domain: RFC_1123.Domain
 
-        /// Creates value WITHOUT validation
-        ///
-        /// Private to ensure all public construction goes through validation.
         private init(
             __unchecked: Void,
             displayName: String?,
@@ -55,12 +28,6 @@ extension RFC_6531 {
             self.domain = domain
         }
 
-        /// Creates an email address from pre-validated components
-        ///
-        /// - Parameters:
-        ///   - displayName: Optional display name
-        ///   - localPart: The local part (before @)
-        ///   - domain: The domain part (after @)
         public init(
             displayName: String? = nil,
             localPart: LocalPart,
@@ -74,9 +41,7 @@ extension RFC_6531 {
                 trimmedDisplayName = nil
             }
             self.init(
-                // swift-linter:disable:next unchecked call site
-                // REASON: extension-init internals, CONV-001 same-package use —
-                // the public initializer's own trimmed-components forward.
+
                 __unchecked: (),
                 displayName: trimmedDisplayName,
                 localPart: localPart,
@@ -86,62 +51,38 @@ extension RFC_6531 {
     }
 }
 
-// MARK: - Computed Properties
-
 extension RFC_6531.EmailAddress {
-    /// Just the email address part without display name
+
     public var address: String {
         "\(localPart)@\(domain.name)"
     }
 
-    /// Returns true if this is an ASCII-only email address
     public var isASCII: Bool {
-        // swift-linter:disable:next chained rawvalue access
-        // REASON: same-package implementation use — EmailAddress reading its own
-        // LocalPart's byte content to determine ASCII-only-ness.
+
         localPart.rawValue.utf8.allSatisfy { $0 < 128 }
             && (displayName?.utf8.allSatisfy { $0 < 128 } ?? true)
     }
 
-    /// The raw string value
     public var rawValue: String { String(decoding: serialized, as: UTF8.self) }
 }
 
-// MARK: - ASCII Serialization
-
 extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
-    /// Own `ASCII.Serializable` verb ([FAM-012]) — the RFC 6531 (SMTPUTF8)
-    /// mailbox/address form. RFC 6531 permits UTF-8 in the local-part and display
-    /// name; the existing byte body is re-expressed over the `ASCII.Code` substrate
-    /// by direct same-format composition. Each UTF-8 byte is lifted losslessly via
-    /// `ASCII.Code(unchecked:)`, so non-ASCII display-name bytes are preserved. The
-    /// local-part and domain compose their re-cut sub-part verbs directly
-    /// (`LocalPart.serialize` / `RFC_1123.Domain.serialize`), not raw property
-    /// projections. Output is identical to the Binary witness body (`serializeBytes`).
+
     public static func serialize<Buffer: RangeReplaceableCollection>(
         _ value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == ASCII.Code {
         let estimatedCapacity =
             (value.displayName?.utf8.count ?? 0)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package implementation use — EmailAddress's own
-            // serialize witness estimating buffer capacity from its LocalPart.
-            // swift-linter:disable:next chained rawvalue access
-            // REASON: same-package implementation use — see above.
+
             + value.localPart.rawValue.utf8.count
             + value.domain.name.utf8.count + 10
         buffer.reserveCapacity(buffer.count + estimatedCapacity)
 
         if let displayName = value.displayName {
-            // Check if needs quoting (non-ASCII or special chars)
+
             let needsQuoting = displayName.utf8.contains(where: { byte in
-                // Non-ASCII or any non-alphanumeric/whitespace char forces quoting.
-                // swift-linter:disable:next try optional
-                // REASON: ASCII.Code's initializer is a cross-module (INCITS)
-                // failable lift; this site only needs the pass/fail signal to
-                // decide whether the display name needs quoting.
-                // swiftlint:disable:next no_try_optional
+
                 guard let code = try? ASCII.Code(Byte(byte)) else { return true }
                 return !(code.isLetter || code.isDigit || code.isWhitespace)
             })
@@ -158,7 +99,6 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
             buffer.append(ASCII.Code.lessThanSign)
         }
 
-        // local-part@domain — direct same-format composition of the re-cut sub-part verbs
         RFC_6531.EmailAddress.LocalPart.serialize(value.localPart, into: &buffer)
         buffer.append(ASCII.Code.commercialAt)
         RFC_1123.Domain.serialize(value.domain, into: &buffer)
@@ -168,8 +108,6 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
         }
     }
 
-    /// Explicit `Binary.Serializable` witness disambiguating the two
-    /// constraint-incomparable defaults.
     public static func serialize<Buffer: RangeReplaceableCollection>(
         _ value: Self,
         into buffer: inout Buffer
@@ -177,32 +115,21 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
         serializeBytes(value, into: &buffer)
     }
 
-    /// Byte-domain serialization body (RFC 6531 mailbox/address, UTF-8).
     private static func serializeBytes<Buffer: RangeReplaceableCollection>(
         _ value: Self,
         into buffer: inout Buffer
     ) where Buffer.Element == Byte {
         let estimatedCapacity =
             (value.displayName?.utf8.count ?? 0)
-            // swift-linter:disable:next raw value access
-            // REASON: same-package implementation use — EmailAddress's own
-            // byte-domain serialize witness estimating buffer capacity from its
-            // LocalPart.
-            // swift-linter:disable:next chained rawvalue access
-            // REASON: same-package implementation use — see above.
+
             + value.localPart.rawValue.utf8.count
             + value.domain.name.utf8.count + 10
         buffer.reserveCapacity(buffer.count + estimatedCapacity)
 
         if let displayName = value.displayName {
-            // Check if needs quoting (non-ASCII or special chars)
+
             let needsQuoting = displayName.utf8.contains(where: { byte in
-                // Non-ASCII or any non-alphanumeric/whitespace char forces quoting.
-                // swift-linter:disable:next try optional
-                // REASON: ASCII.Code's initializer is a cross-module (INCITS)
-                // failable lift; this site only needs the pass/fail signal to
-                // decide whether the display name needs quoting.
-                // swiftlint:disable:next no_try_optional
+
                 guard let code = try? ASCII.Code(Byte(byte)) else { return true }
                 return !(code.isLetter || code.isDigit || code.isWhitespace)
             })
@@ -219,7 +146,6 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
             buffer.append(ASCII.Code.lessThanSign)
         }
 
-        // local-part@domain — direct same-format composition of the re-cut sub-part verbs
         RFC_6531.EmailAddress.LocalPart.serialize(value.localPart, into: &buffer)
         buffer.append(ASCII.Code.commercialAt)
         RFC_1123.Domain.serialize(value.domain, into: &buffer)
@@ -231,36 +157,15 @@ extension RFC_6531.EmailAddress: ASCII.Serializable, Binary.Serializable {
 }
 
 extension RFC_6531.EmailAddress: ASCII.Parseable {
-    /// Creates an email address by validating `string`'s UTF-8 bytes.
+
     public init(_ string: some StringProtocol) throws(Error) {
         try self.init(ascii: [Byte](string.utf8))
     }
 
-    /// Parse from UTF-8 bytes (CANONICAL PRIMITIVE)
-    ///
-    /// This is the primitive parser that works at the byte level.
-    ///
-    /// ## Category Theory
-    ///
-    /// Parsing transformation:
-    /// - **Domain**: [Byte] (UTF-8 bytes)
-    /// - **Codomain**: RFC_6531.EmailAddress (structured data)
-    ///
-    /// ## Performance
-    ///
-    /// - Zero intermediate Array allocations
-    /// - Uses zero-copy slices for all byte ranges
-    /// - Single String allocation only for display name (when present)
-    ///
-    /// Supports formats:
-    /// - `local@domain`
-    /// - `Display Name <local@domain>`
-    /// - `"Quoted Name" <local@domain>`
     public init<Bytes: Swift.Collection>(ascii bytes: Bytes) throws(Error)
     where Bytes.Element == Byte {
         guard !bytes.isEmpty else { throw Error.missingAtSign }
 
-        // Find key positions at byte level (single pass)
         var lessThanIndex: Bytes.Index?
         var greaterThanIndex: Bytes.Index?
         var lastAtIndex: Bytes.Index?
@@ -281,10 +186,8 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
             }
         }
 
-        // Check for angle bracket format: Display Name <local@domain>
         if let lt = lessThanIndex, let gt = greaterThanIndex, lt < gt {
-            // Display name (RFC 6531 permits UTF-8); trim surrounding ASCII
-            // whitespace in the byte domain, preserving the quoted-string unescape.
+
             let whitespace = Set(INCITS_4_1986.whitespaces.map(\.byte))
             let nameBytes = Array(bytes[..<lt]).trimming(whitespace)
 
@@ -295,16 +198,14 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
                 nameBytes.first == ASCII.Code.quotationMark.byte,
                 nameBytes.last == ASCII.Code.quotationMark.byte
             {
-                // Quoted display name - remove quotes and unescape
+
                 displayName = Self.unescapeQuotedString(nameBytes.dropFirst().dropLast())
             } else {
                 displayName = String(decoding: nameBytes, as: UTF8.self)
             }
 
-            // Extract email part (between < and >) - zero-copy slice
             let emailBytes = bytes[bytes.index(after: lt)..<gt]
 
-            // Find @ in email part
             var emailAtIndex: Bytes.Index?
             for index in emailBytes.indices {
                 if emailBytes[index] == ASCII.Code.commercialAt.byte {
@@ -316,22 +217,14 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
                 throw Error.missingAtSign
             }
 
-            // Zero-copy slices for local and domain parts
             let localBytes = emailBytes[..<atIdx]
             let domainBytes = emailBytes[emailBytes.index(after: atIdx)...]
 
-            // swift-linter:disable:next do throws for typed catch
-            // REASON: the do block mixes two heterogeneous typed callees
-            // (LocalPart.Error and RFC_1123.Domain's untyped-to-us error), so no
-            // single `throws(E)` clause can type both; the first catch clause
-            // narrows the same-package LocalPart.Error explicitly.
             do {
                 let localPart = try LocalPart(ascii: localBytes)
                 let domain = try RFC_1123.Domain(ascii: domainBytes)
                 self.init(
-                    // swift-linter:disable:next unchecked call site
-                    // REASON: extension-init internals, CONV-001 same-package use —
-                    // this call site is the wrapper's own validated-components forward.
+
                     __unchecked: (),
                     displayName: displayName,
                     localPart: localPart,
@@ -343,27 +236,19 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
                 throw Error.invalidDomain(String(describing: error))
             }
         } else {
-            // Bare email address: local@domain
+
             guard let atIdx = lastAtIndex else {
                 throw Error.missingAtSign
             }
 
-            // Zero-copy slices for local and domain parts
             let localBytes = bytes[..<atIdx]
             let domainBytes = bytes[bytes.index(after: atIdx)...]
 
-            // swift-linter:disable:next do throws for typed catch
-            // REASON: the do block mixes two heterogeneous typed callees
-            // (LocalPart.Error and RFC_1123.Domain's untyped-to-us error), so no
-            // single `throws(E)` clause can type both; the first catch clause
-            // narrows the same-package LocalPart.Error explicitly.
             do {
                 let localPart = try LocalPart(ascii: localBytes)
                 let domain = try RFC_1123.Domain(ascii: domainBytes)
                 self.init(
-                    // swift-linter:disable:next unchecked call site
-                    // REASON: extension-init internals, CONV-001 same-package use —
-                    // this call site is the wrapper's own validated-components forward.
+
                     __unchecked: (),
                     displayName: nil,
                     localPart: localPart,
@@ -377,13 +262,10 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
         }
     }
 
-    /// Unescapes a quoted string at byte level
-    ///
-    /// Note: This allocates a result buffer only when escape sequences are present.
     private static func unescapeQuotedString<Bytes: Swift.Collection>(
         _ bytes: Bytes
     ) -> String where Bytes.Element == Byte {
-        // Check if any escapes exist (avoid allocation if not needed)
+
         var hasEscapes = false
         for byte in bytes where byte == ASCII.Code.reverseSolidus.byte {
             hasEscapes = true
@@ -391,18 +273,17 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
         }
 
         if !hasEscapes {
-            // No escapes - direct decode (no intermediate allocation)
+
             return String(decoding: bytes, as: UTF8.self)
         }
 
-        // Has escapes - must allocate result buffer
         var result: [Byte] = []
         result.reserveCapacity(bytes.count)
 
         var iterator = bytes.makeIterator()
         while let byte = iterator.next() {
             if byte == ASCII.Code.reverseSolidus.byte {
-                // Escape sequence - take next byte literally
+
                 if let next = iterator.next() {
                     result.append(next)
                 }
@@ -413,8 +294,6 @@ extension RFC_6531.EmailAddress: ASCII.Parseable {
         return String(decoding: result, as: UTF8.self)
     }
 }
-
-// MARK: - Required Conformances
 
 extension RFC_6531.EmailAddress: CustomStringConvertible {
     public var description: String {
@@ -446,15 +325,8 @@ extension RFC_6531.EmailAddress: RawRepresentable {
     }
 }
 
-// MARK: - Conversion to RFC 5321/5322
-
 extension RFC_5321.EmailAddress {
-    /// Creates an RFC 5321 email address from an RFC 6531 address
-    ///
-    /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address
-    ///   contains non-ASCII, or `.notRepresentableAsRFC5321` if the ASCII components are
-    ///   rejected by the RFC 5321 grammar (e.g. a display name containing a bare CR or LF,
-    ///   which RFC 5321 rejects as header injection).
+
     public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError)
     {
         guard emailAddress.isASCII else {
@@ -481,12 +353,7 @@ extension RFC_5321.EmailAddress {
 }
 
 extension RFC_5322.EmailAddress {
-    /// Creates an RFC 5322 email address from an RFC 6531 address
-    ///
-    /// - Throws: `RFC_6531.EmailAddress.ConversionError.nonASCIICharacters` if the address
-    ///   contains non-ASCII, or `.notRepresentableAsRFC5322` if the ASCII components are
-    ///   rejected by the RFC 5322 grammar (e.g. a display name containing a bare CR or LF,
-    ///   which RFC 5322 rejects as header injection).
+
     public init(_ emailAddress: RFC_6531.EmailAddress) throws(RFC_6531.EmailAddress.ConversionError)
     {
         guard emailAddress.isASCII else {

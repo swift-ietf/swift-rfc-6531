@@ -1,10 +1,5 @@
-// RFC_6531.EmailAddress.LocalPart.Error.swift
-// swift-rfc-6531
-//
-// Error types for RFC 6531 local-part parsing
-
 extension RFC_6531.EmailAddress.LocalPart {
-    /// Errors that can occur when parsing an RFC 6531 local-part
+
     public enum Error: Swift.Error, Sendable, Equatable {
         case empty
         case tooLong(_ length: Int)

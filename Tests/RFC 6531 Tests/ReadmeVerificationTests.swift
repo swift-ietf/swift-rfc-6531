@@ -1,10 +1,3 @@
-//
-//  ReadmeVerificationTests.swift
-//  swift-rfc-6531
-//
-//  Verifies that README code examples actually work
-//
-
 import RFC_1123
 import RFC_5321
 import RFC_5322
@@ -72,7 +65,7 @@ struct `README Verification` {
 
         @Test
         func `README Line 102-105: UTF-8 length validation`() throws {
-            let chinese = "用户名"  // 9 bytes in UTF-8
+            let chinese = "用户名"
             let email = try RFC_6531.EmailAddress("\(chinese)@example.com")
             #expect(email.localPart.description == chinese)
         }
@@ -80,7 +73,7 @@ struct `README Verification` {
         @Test
         func `README Line 107-113: Local part too long`() throws {
             #expect(throws: RFC_6531.EmailAddress.Error.self) {
-                let longLocal = String(repeating: "用", count: 22)  // 66 bytes
+                let longLocal = String(repeating: "用", count: 22)
                 _ = try RFC_6531.EmailAddress("\(longLocal)@example.com")
             }
         }
