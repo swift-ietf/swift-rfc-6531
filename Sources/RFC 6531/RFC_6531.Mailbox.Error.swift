@@ -1,16 +1,15 @@
-import RFC_5321
-import RFC_5322
+public import RFC_1123
 
-extension RFC_6531.EmailAddress {
+extension RFC_6531.Mailbox {
 
     public enum Error: Swift.Error, Sendable, Equatable {
         case missingAtSign
         case invalidLocalPart(_ underlying: LocalPart.Error)
-        case invalidDomain(_ description: String)
+        case invalidDomain(_ underlying: RFC_1123.Domain.Error)
     }
 }
 
-extension RFC_6531.EmailAddress.Error: CustomStringConvertible {
+extension RFC_6531.Mailbox.Error: CustomStringConvertible {
     public var description: String {
         switch self {
         case .missingAtSign:
@@ -19,8 +18,8 @@ extension RFC_6531.EmailAddress.Error: CustomStringConvertible {
         case .invalidLocalPart(let error):
             return "Invalid local-part: \(error)"
 
-        case .invalidDomain(let description):
-            return "Invalid domain: \(description)"
+        case .invalidDomain(let error):
+            return "Invalid domain: \(error)"
         }
     }
 }

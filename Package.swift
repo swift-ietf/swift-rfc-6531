@@ -2,30 +2,6 @@
 
 import PackageDescription
 
-extension String {
-    static let rfc6531: Self = "RFC 6531"
-}
-
-extension Target.Dependency {
-    static var asciiSerializerPrimitives: Self {
-        .product(name: "ASCII Serializer", package: "swift-ascii-serializer")
-    }
-    static var asciiParser: Self {
-        .product(name: "Parseable ASCII", package: "swift-ascii-parser")
-    }
-    static var binarySerializable: Self {
-        .product(
-            name: "Binary Serializable",
-            package: "swift-binary-serializer"
-        )
-    }
-    static var incits41986: Self { .product(name: "INCITS 4 1986", package: "swift-incits-4-1986") }
-    static var rfc6531: Self { .target(name: .rfc6531) }
-    static var rfc1123: Self { .product(name: "RFC 1123", package: "swift-rfc-1123") }
-    static var rfc5321: Self { .product(name: "RFC 5321", package: "swift-rfc-5321") }
-    static var rfc5322: Self { .product(name: "RFC 5322", package: "swift-rfc-5322") }
-}
-
 let package = Package(
     name: "swift-rfc-6531",
     platforms: [
@@ -33,55 +9,72 @@ let package = Package(
         .iOS(.v27),
         .tvOS(.v27),
         .watchOS(.v27),
+        .visionOS(.v27),
     ],
     products: [
-        .library(name: "RFC 6531", targets: ["RFC 6531"])
+        .library(name: "RFC 6531", targets: ["RFC 6531"]),
+        .library(
+            name: "RFC 6531 Foundation Integration",
+            targets: ["RFC 6531 Foundation Integration"]
+        ),
     ],
     dependencies: [
+        .package(url: "https://github.com/swift-atoms/swift-ascii.git", branch: "main"),
+        .package(url: "https://github.com/swift-atoms/swift-byte.git", branch: "main"),
         .package(
-            url: "https://github.com/swift-molecules/swift-ascii-serializer",
+            url: "https://github.com/swift-atoms/swift-standard-library-extensions.git",
             branch: "main"
         ),
-        .package(
-            url: "https://github.com/swift-molecules/swift-ascii-parser",
-            branch: "main"
-        ),
-        .package(
-            url: "https://github.com/swift-molecules/swift-binary-serializer",
-            branch: "main"
-        ),
-        .package(url: "https://github.com/swift-incits/swift-incits-4-1986", branch: "main"),
-        .package(url: "https://github.com/swift-ietf/swift-rfc-1123", branch: "main"),
-        .package(url: "https://github.com/swift-ietf/swift-rfc-5321", branch: "main"),
-        .package(url: "https://github.com/swift-ietf/swift-rfc-5322", branch: "main"),
+        .package(url: "https://github.com/swift-incits/swift-incits-4-1986.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-1123.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-5321.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-5322.git", branch: "main"),
     ],
     targets: [
         .target(
             name: "RFC 6531",
             dependencies: [
-                .asciiSerializerPrimitives,
-                .asciiParser,
-                .binarySerializable,
-                .incits41986,
-                .rfc1123,
-                .rfc5321,
-                .rfc5322,
+                .product(name: "ASCII", package: "swift-ascii"),
+                .product(name: "Byte", package: "swift-byte"),
+                .product(name: "Byte", package: "swift-byte"),
+                .product(name: "INCITS 4 1986", package: "swift-incits-4-1986"),
+                .product(name: "RFC 1123", package: "swift-rfc-1123"),
+                .product(name: "RFC 5321", package: "swift-rfc-5321"),
+                .product(name: "RFC 5322", package: "swift-rfc-5322"),
+                .product(
+                    name: "Standard Library Extensions",
+                    package: "swift-standard-library-extensions"
+                ),
+            ]
+        ),
+        .target(
+            name: "RFC 6531 Foundation Integration",
+            dependencies: [
+                .target(name: "RFC 6531"),
+                .product(name: "RFC 1123", package: "swift-rfc-1123"),
+                .product(name: "RFC 1123 Foundation Integration", package: "swift-rfc-1123"),
             ]
         ),
         .testTarget(
             name: "RFC 6531 Tests",
             dependencies: [
-                "RFC 6531"
+                .target(name: "RFC 6531"),
+                .product(name: "RFC 1123", package: "swift-rfc-1123"),
+                .product(name: "RFC 5321", package: "swift-rfc-5321"),
+                .product(name: "RFC 5322", package: "swift-rfc-5322"),
+            ]
+        ),
+        .testTarget(
+            name: "RFC 6531 Foundation Integration Tests",
+            dependencies: [
+                .target(name: "RFC 6531"),
+                .target(name: "RFC 6531 Foundation Integration"),
+                .product(name: "RFC 1123", package: "swift-rfc-1123"),
             ]
         ),
     ],
     swiftLanguageModes: [.v6]
 )
-
-extension String {
-    var tests: Self { self + " Tests" }
-    var foundation: Self { self + " Foundation" }
-}
 
 for target in package.targets where ![.system, .binary, .plugin, .macro].contains(target.type) {
     let ecosystem: [SwiftSetting] = [

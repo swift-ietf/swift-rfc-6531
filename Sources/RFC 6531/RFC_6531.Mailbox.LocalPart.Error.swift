@@ -1,4 +1,4 @@
-extension RFC_6531.EmailAddress.LocalPart {
+extension RFC_6531.Mailbox.LocalPart {
 
     public enum Error: Swift.Error, Sendable, Equatable {
         case empty
@@ -10,7 +10,7 @@ extension RFC_6531.EmailAddress.LocalPart {
     }
 }
 
-extension RFC_6531.EmailAddress.LocalPart.Error: CustomStringConvertible {
+extension RFC_6531.Mailbox.LocalPart.Error: CustomStringConvertible {
     public var description: String {
         switch self {
         case .empty:
@@ -18,7 +18,7 @@ extension RFC_6531.EmailAddress.LocalPart.Error: CustomStringConvertible {
 
         case .tooLong(let length):
             return
-                "Local-part UTF-8 byte length \(length) exceeds maximum of \(RFC_6531.EmailAddress.LocalPart.Limits.maxUTF8Length)"
+                "Local-part UTF-8 byte length \(length) exceeds maximum of \(RFC_6531.Mailbox.LocalPart.Limits.maxUTF8Length)"
 
         case .invalidUTF8Atom(let value):
             return "Invalid UTF-8 atom format: '\(value)'"

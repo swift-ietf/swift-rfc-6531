@@ -3,3 +3,4 @@ builder:
   configs:
   - documentation_targets:
     - RFC 6531
+    - RFC 6531 Foundation Integration
