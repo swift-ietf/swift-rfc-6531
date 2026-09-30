@@ -91,10 +91,13 @@ extension RFC_6531.Mailbox.LocalPart {
         var iterator = scalars.makeIterator()
         while let scalar = iterator.next() {
             if scalar == "\\" {
-                guard let next = iterator.next(), next == "\"" || next == "\\" else {
+                guard let next = iterator.next(), (32...126).contains(next.value) else {
                     return false
                 }
-            } else if scalar == "\"" || scalar == "\r" || scalar == "\n" {
+            } else if scalar.isASCII,
+                !(32...33).contains(scalar.value), !(35...91).contains(scalar.value),
+                !(93...126).contains(scalar.value)
+            {
                 return false
             }
         }
