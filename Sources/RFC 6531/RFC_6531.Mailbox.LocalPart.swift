@@ -74,7 +74,7 @@ extension RFC_6531.Mailbox.LocalPart {
 
 extension RFC_6531.Mailbox.LocalPart {
 
-    private static func isValidUTF8Atom(_ scalars: some Swift.Collection<Unicode.Scalar>) -> Bool {
+    private static func isValidUTF8Atom(_ scalars: some Swift::Collection<Unicode.Scalar>) -> Bool {
         guard !scalars.isEmpty else { return false }
 
         for scalar in scalars where scalar.isASCII {
@@ -85,7 +85,7 @@ extension RFC_6531.Mailbox.LocalPart {
         return true
     }
 
-    private static func isValidQuotedContent(_ scalars: some Swift.Collection<Unicode.Scalar>) -> Bool {
+    private static func isValidQuotedContent(_ scalars: some Swift::Collection<Unicode.Scalar>) -> Bool {
         guard !scalars.isEmpty else { return false }
 
         var iterator = scalars.makeIterator()

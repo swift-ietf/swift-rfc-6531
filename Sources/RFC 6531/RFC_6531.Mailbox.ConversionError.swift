@@ -3,7 +3,7 @@ public import RFC_5322
 
 extension RFC_6531.Mailbox {
 
-    public enum ConversionError: Swift.Error, Sendable, Equatable {
+    public enum ConversionError: Swift::Error, Sendable, Equatable {
         case nonASCIICharacters
 
         case notRepresentableAsRFC5321(_ underlying: RFC_5321.EmailAddress.Error)

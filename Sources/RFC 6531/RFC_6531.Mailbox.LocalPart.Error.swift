@@ -1,6 +1,6 @@
 extension RFC_6531.Mailbox.LocalPart {
 
-    public enum Error: Swift.Error, Sendable, Equatable {
+    public enum Error: Swift::Error, Sendable, Equatable {
         case empty
         case tooLong(_ length: Int)
         case invalidUTF8Atom(_ value: String)

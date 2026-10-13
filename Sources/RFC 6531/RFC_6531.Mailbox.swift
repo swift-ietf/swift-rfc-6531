@@ -1,6 +1,5 @@
 import ASCII
 public import Byte
-import Byte
 import INCITS_4_1986
 public import RFC_1123
 import Standard_Library_Extensions
@@ -38,7 +37,7 @@ extension RFC_6531.Mailbox {
         try self.init(utf8: text.utf8.map(Byte.init(bitPattern:)))
     }
 
-    public init<Bytes: Swift.Collection>(utf8 bytes: Bytes) throws(Error)
+    public init<Bytes: Swift::Collection>(utf8 bytes: Bytes) throws(Error)
     where Bytes.Element == Byte {
         guard !bytes.isEmpty else { throw Error.missingAtSign }
 
