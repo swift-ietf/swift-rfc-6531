@@ -1,30 +1,15 @@
 # swift-rfc-6531
 
-Domain model for RFC 6531, the SMTPUTF8 extension: `RFC_6531.Mailbox` (display name, `Mailbox.LocalPart`, `RFC_1123.Domain`) is the internationalized mailbox, whose local-part admits UTF-8 dot-atoms and quoted strings, validates its length in UTF-8 bytes rather than characters, throwing `Mailbox.LocalPart.Error`, and reports `isASCII` and `isQuoted`. `RFC_6531.Mailbox(_:)` / `init(utf8:)` read the text form (`local@domain` or `display-name <local@domain>`), throwing `Mailbox.Error`, and `description` and `address` render it. `Mailbox.isASCII` reports whether an address is representable without SMTPUTF8, and the downgrading initializers `RFC_5321.EmailAddress(_:)` and `RFC_5322.Mailbox(_:)` convert when it is, throwing `Mailbox.ConversionError` when it is not. The `RFC 6531 Foundation Integration` product bridges `Mailbox` to `Codable` as its parts (`displayName`, `localPart`, `domain`) and `Mailbox.LocalPart` as its text form. The domain target carries no wire coders.
+Use this package when you need an email address whose local part may contain non-ASCII text, as SMTPUTF8 allows, such as `用户@example.com`. Start from `RFC_6531.Mailbox`. The domain is an `RFC_1123.Domain`, so it must be an ASCII host name. If you need one address type across the email standards, use `EmailAddress` from swift-emailaddress-standard. For ASCII-only addresses under one standard, use `RFC_5321.EmailAddress` from swift-rfc-5321 or `RFC_5322.Mailbox` from swift-rfc-5322. For `Codable`, add the `RFC 6531 Foundation Integration` product.
 
-```swift
-import RFC_1123
-import RFC_5321
-import RFC_6531
+## Laws
 
-let mailbox = RFC_6531.Mailbox(
-    displayName: "田中太郎",
-    localPart: try .init("用户"),
-    domain: try .init("example.com")
-)
-mailbox.address                                      // "用户@example.com"
-mailbox.isASCII                                      // false
-mailbox.localPart.isQuoted                           // false
-mailbox.description                                  // "\"田中太郎\" <用户@example.com>"
-
-let read = try RFC_6531.Mailbox("张三 <用户@example.com>")
-read.displayName                                     // "张三"
-read.address                                         // "用户@example.com"
-
-let ascii = RFC_6531.Mailbox(
-    displayName: "John Doe",
-    localPart: try .init("user"),
-    domain: try .init("example.com")
-)
-try RFC_5321.EmailAddress(ascii).address             // "user@example.com"
-```
+- A local part may be at most 64 UTF-8 bytes. The limit counts bytes, not characters, so 21 CJK characters fit and 22 do not.
+- An unquoted local part is a series of atoms separated by single dots, with no dot at either end. Any non-ASCII character is allowed in an atom. An ASCII character must be one RFC 5322 allows in an atom.
+- A quoted local part keeps its quotes and escapes as written. Inside the quotes it may hold spaces, `@`, dots in any position and non-ASCII text. Control characters, including tab, are refused, and a backslash may escape any printable ASCII character.
+- Text is read as `local@domain` or `display-name <local@domain>`. The address is split at its last `@`, so a quoted local part may contain `@`. A display name in double quotes has its quotes removed and `\"` and `\\` unescaped.
+- The display name is trimmed of surrounding whitespace, and a blank one becomes nil.
+- `RFC_6531.Mailbox.description` writes a display name bare only when it holds nothing but ASCII letters, digits and whitespace. Any other name, including every non-ASCII name, is quoted with `"` and `\` escaped. Reading the result back gives an equal mailbox.
+- Two mailboxes are equal only if their display names are equal too.
+- `RFC_6531.Mailbox.isASCII` also checks the display name. A mailbox with a non-ASCII display name therefore can't become an `RFC_5321.EmailAddress` or an `RFC_5322.Mailbox`, even when its address is ASCII, and fails with `RFC_6531.Mailbox.ConversionError.nonASCIICharacters`. An ASCII mailbox that breaks the target standard's own rules, such as its total length limit or a line break in the display name, fails with that standard's error instead.
+- With `RFC 6531 Foundation Integration`, a mailbox encodes as an object with `displayName`, `localPart` and `domain`, leaving out `displayName` when it is nil. A local part encodes as its text. A local part or domain that isn't valid fails to decode with a `DecodingError`.
