@@ -1,4 +1,5 @@
 public import RFC_1123
+public import RFC_5890
 
 extension RFC_6531.Mailbox {
 
@@ -6,6 +7,7 @@ extension RFC_6531.Mailbox {
         case missingAtSign
         case invalidLocalPart(_ underlying: LocalPart.Error)
         case invalidDomain(_ underlying: RFC_1123.Domain.Error)
+        case invalidInternationalizedDomain(_ underlying: IDNA.Error)
     }
 }
 
@@ -20,6 +22,9 @@ extension RFC_6531.Mailbox.Error: CustomStringConvertible {
 
         case .invalidDomain(let error):
             return "Invalid domain: \(error)"
+
+        case .invalidInternationalizedDomain(let error):
+            return "Invalid internationalized domain: \(error)"
         }
     }
 }

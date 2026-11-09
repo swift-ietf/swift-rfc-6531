@@ -1,6 +1,8 @@
+import Byte
 import RFC_1123
 import RFC_5321
 import RFC_5322
+import RFC_5890
 import RFC_6531
 import Testing
 
@@ -190,6 +192,36 @@ struct `RFC_6531.Mailbox Tests` {
         }
         #expect(throws: RFC_6531.Mailbox.Error.invalidDomain(error)) {
             try RFC_6531.Mailbox("user@\(domain)")
+        }
+    }
+
+    @Test
+    func `a mailbox with an internationalized domain stores its A-labels`() throws {
+        let mailbox = try RFC_6531.Mailbox("用户@例子.广告")
+        #expect(mailbox.localPart.description == "用户")
+        #expect(mailbox.domain.name == "xn--fsqu00a.xn--4rr70v")
+        #expect(mailbox.address == "用户@xn--fsqu00a.xn--4rr70v")
+    }
+
+    @Test
+    func `a U-label domain and its A-label form read as the same mailbox`() throws {
+        let unicode = try RFC_6531.Mailbox("José <josé@bücher.example>")
+        let ascii = try RFC_6531.Mailbox("José <josé@xn--bcher-kva.example>")
+        #expect(unicode == ascii)
+    }
+
+    @Test
+    func `an invalid U-label domain is refused`() throws {
+        #expect(throws: RFC_6531.Mailbox.Error.invalidInternationalizedDomain(.emptyLabel)) {
+            try RFC_6531.Mailbox("user@bücher..example")
+        }
+    }
+
+    @Test
+    func `a domain that is not UTF-8 is refused`() throws {
+        let bytes = Array("user@b".utf8) + [0xFF] + Array("cher.example".utf8)
+        #expect(throws: RFC_6531.Mailbox.Error.invalidInternationalizedDomain(.invalidLabel)) {
+            try RFC_6531.Mailbox(utf8: bytes.map(Byte.init(bitPattern:)))
         }
     }
 

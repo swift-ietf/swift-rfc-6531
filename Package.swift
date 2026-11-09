@@ -29,6 +29,7 @@ let package = Package(
         .package(url: "https://github.com/swift-ietf/swift-rfc-1123.git", branch: "main"),
         .package(url: "https://github.com/swift-ietf/swift-rfc-5321.git", branch: "main"),
         .package(url: "https://github.com/swift-ietf/swift-rfc-5322.git", branch: "main"),
+        .package(url: "https://github.com/swift-ietf/swift-rfc-5890.git", branch: "main"),
     ],
     targets: [
         .target(
@@ -40,6 +41,7 @@ let package = Package(
                 .product(name: "RFC 1123", package: "swift-rfc-1123"),
                 .product(name: "RFC 5321", package: "swift-rfc-5321"),
                 .product(name: "RFC 5322", package: "swift-rfc-5322"),
+                .product(name: "RFC 5890", package: "swift-rfc-5890"),
                 .product(
                     name: "Standard Library Extensions",
                     package: "swift-standard-library-extensions"
@@ -58,9 +60,11 @@ let package = Package(
             name: "RFC 6531 Tests",
             dependencies: [
                 .target(name: "RFC 6531"),
+                .product(name: "Byte", package: "swift-byte"),
                 .product(name: "RFC 1123", package: "swift-rfc-1123"),
                 .product(name: "RFC 5321", package: "swift-rfc-5321"),
                 .product(name: "RFC 5322", package: "swift-rfc-5322"),
+                .product(name: "RFC 5890", package: "swift-rfc-5890"),
             ]
         ),
         .testTarget(

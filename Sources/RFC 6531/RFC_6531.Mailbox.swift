@@ -2,6 +2,7 @@ import ASCII
 public import Byte
 import INCITS_4_1986
 public import RFC_1123
+import RFC_5890
 import Standard_Library_Extensions
 
 extension RFC_6531 {
@@ -81,9 +82,24 @@ extension RFC_6531.Mailbox {
             throw Error.invalidLocalPart(error)
         }
 
+        let domainOctets = addressBytes[addressBytes.index(after: atIndex)...].map(UInt8.init(bitPattern:))
+        let asciiDomain: [Byte]
+        if domainOctets.allSatisfy({ $0 < 0x80 }) {
+            asciiDomain = domainOctets.map(Byte.init(bitPattern:))
+        } else {
+            guard let domainText = String(validating: domainOctets, as: UTF8.self) else {
+                throw Error.invalidInternationalizedDomain(.invalidLabel)
+            }
+            do throws(IDNA.Error) {
+                asciiDomain = try IDNA.toASCII(domainText).utf8.map(Byte.init(bitPattern:))
+            } catch {
+                throw Error.invalidInternationalizedDomain(error)
+            }
+        }
+
         let domain: RFC_1123.Domain
         do throws(RFC_1123.Domain.Error) {
-            domain = try RFC_1123.Domain(ascii: addressBytes[addressBytes.index(after: atIndex)...])
+            domain = try RFC_1123.Domain(ascii: asciiDomain)
         } catch {
             throw Error.invalidDomain(error)
         }

@@ -1,6 +1,6 @@
 # swift-rfc-6531
 
-Use this package when you need an email address whose local part may contain non-ASCII text, as SMTPUTF8 allows, such as `用户@example.com`. Start from `RFC_6531.Mailbox`. The domain is an `RFC_1123.Domain`, so it must be an ASCII host name. If you need one address type across the email standards, use `EmailAddress` from swift-emailaddress-standard. For ASCII-only addresses under one standard, use `RFC_5321.EmailAddress` from swift-rfc-5321 or `RFC_5322.Mailbox` from swift-rfc-5322. For `Codable`, add the `RFC 6531 Foundation Integration` product.
+Use this package when you need an email address whose local part may contain non-ASCII text, as SMTPUTF8 allows, such as `用户@example.com`. Start from `RFC_6531.Mailbox`. The domain is an `RFC_1123.Domain`: an internationalized domain given in text as U-labels, such as `用户@例子.广告`, is converted to its A-labels (RFC 5890), so `domain` and `address` hold the `xn--` form. If you need one address type across the email standards, use `EmailAddress` from swift-emailaddress-standard. For ASCII-only addresses under one standard, use `RFC_5321.EmailAddress` from swift-rfc-5321 or `RFC_5322.Mailbox` from swift-rfc-5322. For `Codable`, add the `RFC 6531 Foundation Integration` product.
 
 ## Laws
 
