@@ -61,7 +61,7 @@ extension RFC_6531.Mailbox.LocalPart {
 extension RFC_6531.Mailbox.LocalPart {
 
     public var isASCII: Bool {
-        description.unicodeScalars.allSatisfy(\.isASCII)
+        description.unicodeScalars.allSatisfy({ $0.isASCII })
     }
 
     public var isQuoted: Bool {
