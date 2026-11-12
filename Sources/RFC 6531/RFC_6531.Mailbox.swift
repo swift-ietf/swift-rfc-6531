@@ -54,9 +54,7 @@ extension RFC_6531.Mailbox {
                     .trimming(.ascii.whitespaces)
             )
             if name.count >= 2, name.hasPrefix("\""), name.hasSuffix("\"") {
-                name = String(name.dropFirst().dropLast())
-                    .replacing("\\\"", with: "\"")
-                    .replacing("\\\\", with: "\\")
+                name = Self.unescapedFromQuotedString(String(name.dropFirst().dropLast()))
             }
             displayName = name.isEmpty ? nil : name
             addressBytes = bytes[bytes.index(after: openAngle)..<closeAngle]
@@ -137,8 +135,27 @@ extension RFC_6531.Mailbox: CustomStringConvertible {
     }
 
     private static func escapedForQuotedString(_ displayName: String) -> String {
-        displayName
-            .replacing("\\", with: "\\\\")
-            .replacing("\"", with: "\\\"")
+        var escaped = ""
+        for character in displayName {
+            if character == "\\" || character == "\"" {
+                escaped.append("\\")
+            }
+            escaped.append(character)
+        }
+        return escaped
+    }
+
+    private static func unescapedFromQuotedString(_ content: String) -> String {
+        var unescaped = ""
+        var pending = false
+        for character in content {
+            if !pending && character == "\\" {
+                pending = true
+                continue
+            }
+            unescaped.append(character)
+            pending = false
+        }
+        return unescaped
     }
 }
